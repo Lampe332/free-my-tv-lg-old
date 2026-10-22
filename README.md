@@ -2,217 +2,178 @@
 
 <img src="docs/assets/icon-512.png" width="96" alt="">
 
-# Free My TV
+# Free My TV für LG
 
-**A fast, ad-free home screen for Google TV, LG and Samsung TVs.**
+**Ein schneller, werbefreier Startbildschirm für LG-Fernseher (webOS).**
 
-Trending picks from your own apps, the weather at a glance, and a look that follows the sunset.<br>
-Open source. Built with Claude Code. One button to undo.
+Deine Apps groß und übersichtlich, Wetter für 5 Tage, die neuesten SRF-Schlagzeilen und ein Bildschirmschoner mit Uhr und Wetter.<br>
+Gebaut für Leute, die vor allem YouTube und Netflix schauen und sich nicht durch LGs Werbe-Startseite klicken wollen.
 
-[**freemytv.io**](https://freemytv.io) · [Install](#install) · [LG TVs](#lg-tvs-webos) · [Samsung TVs](#samsung-tvs-tizen) · [Any TV](#any-tv) · [Make it yours](#make-it-yours)
+[**⬇ App herunterladen**](https://github.com/Lampe332/free-my-tv-lg/releases/latest) · [Anleitung](#installieren-schritt-für-schritt) · [Bedienung](#bedienung) · [Fragen](#häufige-fragen)
 
-<img src=".github/preview.webp" width="880" alt="The Free My TV home screen: a glass shelf of apps, trending picks, and a drawer with the weather and crypto prices">
+<img src="webos/screenshots/tag.jpg" width="880" alt="Free My TV am Tag: Uhr, Wetter, SRF-News, Geräte und die App-Leiste">
 
 </div>
 
-## What you get
+## Was die App kann
 
-- **No ads.** No sponsored rows, banners or autoplaying promos. Not one.
-- **Your apps, front and center.** The streaming apps you actually use, on a glass shelf. Pick them and their order right on the TV.
-- **Trending, not sponsored.** Three fresh picks every hour from what's trending this week and the latest releases, only from apps you already have. Movies and Shows get their own tabs.
-- **Weather and markets, one press away.** The hour-by-hour forecast, sunrise and sunset, and live crypto prices.
-- **Light by day, dark by night.** It follows your city's real sunset, the way your phone does.
-- **A screensaver to match.** Full-screen photos of the picks with a big glass clock.
-- **Fast.** 60 fps, every frame in 16.6 ms, on the TV's own chip. The home screen uses 96 MB of memory instead of 242 MB (−60%).<br><sub>Measured on a 98″ TCL Google TV running Android 14.</sub>
-- **Set up on the TV.** Language, your city, temperature, theme, the weather and prices cards, which coins, and the apps on the shelf, in Free My TV's own settings.
-- **Safe.** No root. Nothing is uninstalled. One button brings back the factory home screen.
+- **Keine Werbung.** Keine gesponserten Reihen, keine Banner, keine Videos, die von selbst starten.
+- **Deine Apps vorne.** Netflix, YouTube, Prime Video, Disney+ und Co. in einer Leiste. Reihenfolge änderst du direkt mit der Fernbedienung (OK lange drücken).
+- **Wetter auf einen Blick.** Jetzt, die nächsten Stunden und die nächsten 5 Tage, dazu Sonnenauf- und -untergang.
+- **SRF News.** Die neuesten Schlagzeilen, alle 10 Minuten frisch.
+- **Tags hell, nachts dunkel.** Wechselt mit dem echten Sonnenuntergang, mit bewegtem Hintergrund.
+- **Home-Taste, die mitdenkt.** Hast du YouTube aus Free My TV geöffnet, bringt dich Home wieder zurück zu Free My TV und nicht zu LGs Startseite.
+- **Eigener Bildschirmschoner.** Uhr, Wetter und die neueste Schlagzeile. Der LG-Bildschirmschoner bleibt dann weg.
+- **Geräte am HDMI.** Apple TV, Konsole und Co. erscheinen als Karten und sind mit einem Druck auf OK an.
+- **Ändert nichts am Fernseher.** Es ist eine ganz normale App. LGs Startseite bleibt, wo sie ist.
 
-## Install
+<table>
+<tr>
+<td><img src="webos/screenshots/nacht.jpg" alt="Free My TV nachts im dunklen Design"></td>
+<td><img src="webos/screenshots/einstellungen.jpg" alt="Die Einstellungen mit fünf Gruppen"></td>
+</tr>
+<tr>
+<td><img src="webos/screenshots/verschieben.jpg" alt="Eine App wird in der Leiste verschoben"></td>
+<td><img src="webos/screenshots/bildschirmschoner.jpg" alt="Der Bildschirmschoner mit Uhr, Wetter und Schlagzeile"></td>
+</tr>
+</table>
 
-About ten minutes. You need a Google TV or Android TV (Android 9 or newer) and a computer on the same Wi-Fi.
+## Was du brauchst
 
-### The easy way: Claude Code
+- Einen **LG-Fernseher mit webOS** (getestet auf einem LG OLED B5 mit webOS 25) im gleichen WLAN wie dein Computer.
+- Einen **Computer** (Windows, Mac oder Linux).
+- Ein **kostenloses LG-Entwicklerkonto**. Dauert 2 Minuten, siehe Schritt 1.
+- Etwa **15 Minuten**.
 
-1. **On the TV**, turn on developer mode: Settings → System → About → press *Android TV OS build* 7 times. Then Settings → System → Developer options → turn on **USB debugging**. Write down the TV's IP address (Settings → Network & Internet).
-2. **On your computer**, get the code:
-   ```bash
-   git clone https://github.com/simbasjungles/free-my-tv && cd free-my-tv
+Kein Rooten, kein Basteln am Fernseher: Free My TV wird über LGs offiziellen **Entwicklermodus** installiert.
+
+## Installieren: Schritt für Schritt
+
+### Schritt 1: LG-Entwicklerkonto anlegen (am Computer)
+
+1. Öffne [webostv.developer.lge.com](https://webostv.developer.lge.com) und klicke oben rechts auf **Sign In**.
+2. Lege ein Konto an (**Create Account**) und bestätige deine E-Mail-Adresse.
+3. Merk dir E-Mail und Passwort, du brauchst sie gleich am Fernseher.
+
+### Schritt 2: „Developer Mode“-App auf dem Fernseher installieren
+
+1. Drücke am Fernseher **Home** und öffne den **LG Content Store** (je nach Modell auch „Apps“).
+2. Suche nach **Developer Mode** und installiere die App.
+3. Öffne **Developer Mode** und melde dich mit dem Konto aus Schritt 1 an.
+
+### Schritt 3: Entwicklermodus einschalten
+
+1. Schalte in der Developer-Mode-App **Dev Mode Status** auf **ON**.
+2. Der Fernseher fragt, ob er neu starten soll: **Ja**. Er startet neu.
+3. Öffne **Developer Mode** wieder und schalte **Key Server** auf **ON**.
+4. Lass die App offen. Dort steht jetzt die **IP-Adresse** des Fernsehers (z. B. `192.168.1.50`) und eine **Passphrase** aus 6 Zeichen. Beides brauchst du in Schritt 5.
+
+> **Tipp:** Der Key Server geht nach einem Neustart des Fernsehers manchmal wieder aus. Schalte ihn vor dem Installieren einfach nochmal ein.
+
+### Schritt 4: App herunterladen
+
+Lade **[FreeMyTV-webos.ipk](https://github.com/Lampe332/free-my-tv-lg/releases/latest/download/FreeMyTV-webos.ipk)** herunter. Das ist die App-Datei, sie liegt immer unter [Releases](https://github.com/Lampe332/free-my-tv-lg/releases/latest).
+
+### Schritt 5: App auf den Fernseher bringen
+
+Du hast zwei Wege. **Weg A** ist ein Programm mit Fenster, **Weg B** ein kleines Skript.
+
+#### Weg A: mit „webOS Dev Manager“ (ohne Programmieren)
+
+Ein kostenloses Programm der webOS-Homebrew-Community (nicht von LG).
+
+1. Lade den **webOS Dev Manager** für deinen Computer herunter: [github.com/webosbrew/dev-manager-desktop/releases](https://github.com/webosbrew/dev-manager-desktop/releases) (für Windows die Datei mit `.msi` oder `.exe`).
+2. Installiere und öffne ihn.
+3. Füge deinen Fernseher hinzu (**Add Device**): Gib die **IP-Adresse** aus Schritt 3 ein, wähle **Developer Mode** und tippe die **Passphrase** ein.
+4. Gehe zu **Apps** und klicke auf **Install** (Pfeil-Symbol). Wähle die heruntergeladene `FreeMyTV-webos.ipk`.
+5. Fertig: Free My TV erscheint in der App-Liste deines Fernsehers.
+
+#### Weg B: mit dem Install-Skript (Python)
+
+1. Installiere **Python 3** von [python.org](https://www.python.org/downloads/). Unter Windows beim Installieren **„Add python.exe to PATH“** anhaken. Das nötige `ssh` haben Windows 10/11, Mac und Linux schon dabei.
+2. Lade dieses Projekt herunter: oben auf dieser Seite **Code → Download ZIP** und entpacke es.
+3. Lege die `FreeMyTV-webos.ipk` aus Schritt 4 in den entpackten Ordner (neben `README.md`).
+4. Öffne in diesem Ordner ein Terminal (Windows: im Ordner oben in die Adresszeile `cmd` tippen und Enter) und gib ein, mit der IP deines Fernsehers:
    ```
-3. **Open [Claude Code](https://claude.com/claude-code) in that folder** and say:
-   > Install Free My TV on my TV at 192.168.1.50. I live in Lisbon.
-
-   It installs the tools it needs, builds the app and puts it on your TV. Swap in your TV's IP and your city.
-4. **On the TV**, open *Free My TV* → *Home Screen* → *Free My TV*, and accept the debugging prompt (tick *Always allow*).
-
-### The manual way
-
-1. **On the TV**, do step 1 above.
-2. **Tools:** a JDK (17+), the Android SDK command-line tools (build-tools 34, platform android-34) and adb. On a Mac:
-   ```bash
-   brew install --cask temurin android-commandlinetools android-platform-tools
-   sdkmanager "build-tools;34.0.0" "platforms;android-34"
+   python webos/install.py 192.168.1.50
    ```
-   On Linux, get OpenJDK 17, Android's command-line tools and adb from your package manager, then run the same `sdkmanager` line. On Windows, use WSL.
-3. **Build:**
-   ```bash
-   ./build.sh
-   ```
-   The first run creates `config.properties`. Set your city and your [TMDB key](#the-tmdb-key) there, then run it again.
-4. **Install:**
-   ```bash
-   adb connect 192.168.1.50:5555
-   adb install -r FreeMyTV.apk
-   ```
-   On TCL TVs, also let it run in the background (TCL blocks it by default, and the switch never starts):
-   ```bash
-   adb shell "appops set io.freemytv AUTO_START allow || appops set io.freemytv APP_AUTO_START allow"
-   ```
-5. **On the TV**, open *Free My TV* → *Home Screen* → *Free My TV*.
+5. Beim ersten Mal fragt das Skript nach der **Passphrase** aus Schritt 3: eintippen, Enter. Die App wird installiert und öffnet sich auf dem Fernseher.
 
-## LG TVs (webOS)
+Für spätere Updates reicht derselbe Befehl, ohne Passphrase.
 
-The same home screen as an LG app: the picks, the glass shelf with your apps, the drawer with inputs, weather and prices, day and night, Home Settings and the shelf editor. It installs through LG's own Developer Mode, with nothing rooted or changed on the TV. LG's home screen stays where it is, and Free My TV is one press of a number key away.
+### Schritt 6: Erster Start
 
-You need an LG TV (webOS 3 or newer) and a computer on the same Wi-Fi, with Python 3.
+1. Öffne **Free My TV** auf dem Fernseher (App-Liste).
+2. Der Fernseher fragt einmal: **„Das Mobilgerät will sich mit dem Fernsehgerät verbinden“**. Das ist Free My TV selbst: wähle **Ja / Zulassen**.
+   So weiß die App, welche App gerade läuft, und die **Home-Taste bringt dich zurück zu Free My TV**. Wenn du Nein drückst, geht alles andere trotzdem.
 
-1. **On the TV**, open the LG Content Store and install **Developer Mode**. Sign in with a free [LG developer account](https://webostv.developer.lge.com), turn on **Dev Mode Status** (the TV restarts), then turn on **Key Server**. Write down the IP address and the passphrase it shows.
-2. **On your computer**, get the code and build. `config.properties` works as for Google TV (your city, your [TMDB key](#the-tmdb-key)):
-   ```bash
-   git clone https://github.com/simbasjungles/free-my-tv && cd free-my-tv
-   python3 webos/build.py
-   ```
-3. **Install.** The first time, it asks for the TV's passphrase; updates don't:
-   ```bash
-   python3 webos/install.py 192.168.1.50
-   ```
-4. **On the TV**, while Free My TV is open, hold a number key on the remote. From then on, that key opens it from anywhere.
+### Schritt 7: Auf eine Zifferntaste legen (empfohlen)
 
-With Claude Code, say *"Install Free My TV on my LG TV at 192.168.1.50. I live in Lisbon."* It builds the app and hands you the install command, so you type the passphrase yourself.
+Damit Free My TV immer nur einen Tastendruck entfernt ist:
 
-Developer Mode lasts about 40 days: open the Developer Mode app now and then and press **EXTEND**. To remove Free My TV, run `python3 webos/install.py 192.168.1.50 --uninstall`.
+1. Öffne Free My TV.
+2. Halte eine **Zifferntaste** auf der Fernbedienung gedrückt, z. B. die **1**, bis der Fernseher sie zuweist.
+3. Ab jetzt öffnet **1 lange drücken** Free My TV, egal wo du bist.
 
-## Samsung TVs (Tizen)
+## Bedienung
 
-The same home screen as a Samsung app, with everything the LG one has: the picks, the shelf, the drawer with the inputs, the weather and the prices, day and night, and its own settings. It installs through Samsung's own Developer Mode, with nothing rooted or changed on the TV, and Samsung's home screen stays where it is.
-
-You need a Samsung TV from 2017 or newer (Tizen 3+) and a computer on the same Wi-Fi.
-
-1. **On the TV**, open **Apps** and type `1 2 3 4 5` on the remote. Turn **Developer mode** on, type your computer's IP address in **Host PC IP**, and restart the TV.
-2. **On your computer**, download [TizenBrew Installer](https://github.com/reisxd/TizenBrewInstaller/releases/latest), the community's installer for Samsung TVs, open it and connect to your TV.
-3. **Install from GitHub:** type `simbasjungles/free-my-tv`. On 2023 and newer TVs it asks you to sign in to your Samsung account once, to sign the app for your TV.
-4. **Straight to it:** in the TV's settings, under Start Screen Options, turn on **Autorun Last App**: the TV turns on into Free My TV.
-
-This build takes your city from the TV's time zone. For your exact city and the trending picks, build it with your own `config.properties` and [TMDB key](#the-tmdb-key): open the folder in Claude Code and say *"Install Free My TV on my Samsung TV at 192.168.1.50. I live in Lisbon."* It sets up Samsung's tools, and on 2023 and newer TVs you sign in to your Samsung account in the browser to make the certificate.
-
-## Settings
-
-The first values come from `config.properties`, created by the first build (Google TV, LG and Samsung use the same file). Most of them can also be changed on the TV, in *Free My TV* → *Home Settings*, and the TV's choice wins:
-
-| Key | What it does | Default |
-|---|---|---|
-| `tmdb_key` | Your free TMDB key, for the picks | empty |
-| `tmdb_region` | Your country (two letters): which titles are on which app | `US` |
-| `latitude`, `longitude` | Your city, for the weather and the sunset | New York |
-| `city` | The name on the weather card | `Weather` |
-| `language` | `auto` (follows the TV), `en`, `es`, `pt`, `ru` or `de` | `auto` |
-| `show_crypto` | Show Binance crypto prices on home and screensaver | `true` |
-| `currency` | Crypto prices in `USD`, `EUR`, `BRL`… | `USD` |
-| `temperature` | `C`, `F` or `auto` | `auto` |
-| `disable_assistant` | Also turn off Google Assistant | `false` |
-
-Changed something? Run `./build.sh` and install again. Keep `freemytv.keystore`: updates are signed with it.
-
-### The TMDB key
-
-Free, and it takes two minutes: create an account at [themoviedb.org](https://www.themoviedb.org/signup), then open [Settings → API](https://www.themoviedb.org/settings/api) and request a developer key. Paste the *API Read Access Token* (or the *API Key*) after `tmdb_key=`. It's your key: `config.properties` stays out of git.
-
-## Going back
-
-On the TV: *Free My TV* → *Home Screen* → *Original*. The factory home screen, screensaver and every app come back exactly as they were. If the new home screen ever crashes three times in five minutes, it switches back by itself.
-
-To remove it for good, switch to *Original* first, then uninstall *Free My TV* (Settings → Apps).
-
-## What it changes
-
-- It becomes the home screen and the screensaver.
-- It turns off, without uninstalling:
-  - the stock home screen and screensaver;
-  - Google TV's recovery home, Play Games and YouTube Music;
-  - on TCL TVs, the TCL Channel, messages, store demo, hotel menu, manuals, mirroring and logging apps;
-  - on Philco TVs, AI PONT (promo channels and app downloads) and the manual;
-  - on Multilaser TVs, Anoki's screen-content recognition (ACR), the store demo and the manual;
-  - Google Assistant, only with `disable_assistant=true`.
-- On TCL TVs, the remote's Netflix, YouTube and Prime buttons keep working through a small accessibility service that only reads those buttons. Pick what each one opens in *Free My TV* → *Remote Buttons*; *Original* turns the service off. On Vestel-made TVs (F&U and other store brands) the same goes for the Netflix button.
-- Picture, sound, inputs, remote pairing, Google services and the Play Store are on a protected list, checked before every change.
-- Apps that saved a Wi-Fi network are never turned off, since Android would erase the network. If the TV's first setup saved yours, the switch asks you to forget the network and connect again in Settings first (saved networks out of range don't show there; Claude Code can remove them).
-
-## Any TV
-
-Free My TV runs on Google TV and Android TV: TCL, Sony, Hisense, Philips, Xiaomi, Vestel-made TVs (F&U) and more, plus streamers like Chromecast with Google TV, the Google TV Streamer, onn 4K and NVIDIA Shield. And on [LG](#lg-tvs-webos) and [Samsung](#samsung-tvs-tizen) TVs, as an app.
-
-**Any other TV:** plug a Google TV streamer into HDMI and free that one. Same steps, same home screen.
-
-**A different brand or model:** ask Claude. Free My TV is made to be adapted by AI. Open the folder in Claude Code and say *"set it up for my Sony"*: it reads your TV, finds its home screen and its promo apps, updates the lists below and walks you through a test. [CLAUDE.md](CLAUDE.md) tells it how.
-
-| What | Where |
+| Taste | Was passiert |
 |---|---|
-| Apps to turn off | `DEBLOAT` in [`HomeMode.java`](app/src/io/freemytv/HomeMode.java) |
-| Apps never to touch | `PROTECTED` in the same file |
-| Apps on the shelf | `SHELF` in [`HomeApps.java`](app/src/io/freemytv/HomeApps.java) |
-| Your brand's live TV app | `LIVE_TV_APPS` in the same file |
+| ◀ ▶ ▲ ▼ | Auswahl bewegen |
+| **OK** | App öffnen, Gerät einschalten, Einstellung wählen |
+| **OK lange drücken** auf einer App | App aufheben: mit ◀ ▶ verschieben, ▼ entfernt sie aus der Leiste, OK legt sie ab |
+| **▼** auf der App-Leiste | Leiste mit Eingängen (HDMI), „Alle Apps“, Einstellungen |
+| **Zurück** | Schließt, was offen ist |
+| **Home** in einer App, die du aus Free My TV geöffnet hast | Zurück zu Free My TV |
+| **Home** in Free My TV | LGs eigene Startseite |
 
-## Make it yours
+**Einstellungen** (oben rechts, oder ▼ → Einstellungen) haben fünf Gruppen:
 
-It's your code, and Claude Code finds its way around it. Try:
+- **Aussehen:** hell, dunkel oder automatisch, bewegter Hintergrund, Animationen.
+- **Startbildschirm:** Wetter, News, Geräte-Karten und Krypto-Kurse an oder aus.
+- **Apps:** welche Apps in die Leiste kommen, „Apps verschieben“.
+- **Bildschirmschoner:** nach 5, 10 oder 30 Minuten oder aus, „Jetzt zeigen“.
+- **System:** Sprache, °C/°F, Home-Taste an oder aus, TV-Einstellungen.
 
-- *"Add Crunchyroll to the shelf."*
-- *"Show the prices in euros."*
-- *"Add Spanish."*
-- *"Switch to the night look an hour after sunset."*
+## Wichtig zu wissen
 
-## How it works
+- **Entwicklermodus läuft ab:** LG gibt jeweils 1000 Stunden (gut 40 Tage). Öffne ab und zu die App **Developer Mode** und drücke **Extend** (verlängern). Läuft er ab, entfernt der Fernseher Free My TV. Dann einfach Schritt 3 bis 5 wiederholen.
+- **Wetter-Ort:** Die fertige App nimmt die Stadt aus der Zeitzone des Fernsehers (in der Schweiz z. B. Zürich). Für deinen genauen Ort siehe [Selbst bauen](#selbst-bauen-für-fortgeschrittene).
+- **LGs Startseite blitzt kurz auf:** Drückst du in YouTube Home, zeigt der Fernseher zuerst für etwa eine halbe Sekunde seine eigene Startseite, dann holt sich Free My TV den Bildschirm zurück. Ohne Rooten lässt sich das nicht ganz verhindern.
+- **Nach langem Schauen** (z. B. YouTube in 4K) beendet der Fernseher Free My TV manchmal, um Speicher frei zu machen. Dann ist der Bildschirm nach Home kurz schwarz, bis die App neu gestartet ist.
 
-- **A plain Android app, no Gradle, no libraries.** [`build.sh`](build.sh) runs aapt2 → javac → d8 → zipalign → apksigner and makes a 2 MB APK.
-- **It uses the TV's own ADB, from inside the TV.** The app connects to `127.0.0.1:5555` with its own key (that's the *Allow USB debugging?* prompt) and runs the same commands you would: `cmd package set-home-activity`, `settings put secure screensaver_components`, `pm disable-user`. Nothing listens to the network.
-- **Drawn by hand on one Canvas**, with Android 13 shaders for the frosted glass and the sky (plain fills on Android 9 to 12, with lighter shadows and no GPU layers on 9 to 11 for their older GPUs).
-- **A safety net.** A watchdog in a separate process brings back the stock home screen after three crashes in five minutes, and a boot check keeps your choice after TV updates.
-- **On LG and Samsung, the same design in plain HTML, CSS and JavaScript** ([`web/`](web)), written for the Chromium of older TVs, with no frameworks. [`webos/build.py`](webos/build.py) packs it with `config.properties` into an `.ipk` without LG's tools, and [`webos/install.py`](webos/install.py) installs it through Developer Mode; on LG it lists and opens apps through the TV's own service bus (Luna), as LG's launcher does. [`tizen/build.py`](tizen/build.py) packs the same app into a Samsung `.wgt`, which uses Tizen's web APIs for the apps and the inputs. To preview it on a computer: `python3 webos/build.py --preview`, then open `out/webos/index.html` (a stand-in lists sample apps).
-- **Data** from TMDB (trending titles, new releases and which app streams what in your country), Open-Meteo (forecast, sunrise and sunset), and optionally Binance (24-hour prices when `show_crypto=true`).
+## Häufige Fragen
 
-| File | What it is |
-|---|---|
-| [`HomeView.java`](app/src/io/freemytv/HomeView.java) | The home screen |
-| [`HomeMode.java`](app/src/io/freemytv/HomeMode.java) | Switching between Free My TV and Original |
-| [`Adb.java`](app/src/io/freemytv/Adb.java) | The TV's own ADB, from inside the TV |
-| [`Recs.java`](app/src/io/freemytv/Recs.java) | The picks (TMDB) |
-| [`HomeData.java`](app/src/io/freemytv/HomeData.java) | Weather and prices |
-| [`HomeApps.java`](app/src/io/freemytv/HomeApps.java) | The shelf, inputs and All Apps |
-| [`DreamView.java`](app/src/io/freemytv/DreamView.java) | The screensaver |
-| [`SettingsActivity.java`](app/src/io/freemytv/SettingsActivity.java) | The settings screen (the app's icon) |
-| [`Prefs.java`](app/src/io/freemytv/Prefs.java) | Settings changed on the TV |
-| [`RemoteKeys.java`](app/src/io/freemytv/RemoteKeys.java) | The TCL remote's app buttons |
-| [`Watchdog.java`](app/src/io/freemytv/Watchdog.java) | The safety net |
-| [`web/home.js`](web/home.js) | The home screen on LG TVs |
-| [`web/tv.js`](web/tv.js) | The TV's apps and inputs, on LG and Samsung |
-| [`webos/build.py`](webos/build.py), [`webos/install.py`](webos/install.py) | The LG app package and its install |
-| [`tizen/build.py`](tizen/build.py) | The Samsung app package |
+**Die Installation findet den Fernseher nicht.**
+Fernseher und Computer müssen im selben WLAN sein. In der Developer-Mode-App muss **Key Server** auf ON stehen. Prüfe die IP-Adresse, sie steht in der Developer-Mode-App.
 
-The website ([freemytv.io](https://freemytv.io)) is in [`docs/`](docs): plain HTML, CSS and JS on GitHub Pages.
+**„Passphrase falsch“ oder der Schlüssel klappt nicht.**
+Tippe genau die Passphrase ab, die gerade in der Developer-Mode-App steht (Groß- und Kleinschreibung beachten).
 
-## Privacy
+**Home bringt mich nicht zurück zu Free My TV.**
+Beim ersten Start musste die Verbinden-Frage mit **Ja** beantwortet werden. Hast du Nein gedrückt: **Einstellungen → System → Home-Taste**, dort fragt OK nochmal.
 
-No accounts, no analytics, no tracking. The app talks to TMDB, Open-Meteo (with the coordinates you set, or your time zone's main city), and Binance only when `show_crypto=true`. Your settings stay on your computer and your TV.
+**Eine App fehlt in der Leiste.**
+**Einstellungen → Apps**: dort sind alle Apps des Fernsehers, einfach anhaken.
 
-## Credits
+**Ich will Free My TV wieder loswerden.**
+Im webOS Dev Manager unter **Apps** löschen, oder mit dem Skript: `python webos/install.py 192.168.1.50 --uninstall`. Danach kannst du in der Developer-Mode-App **Dev Mode Status** ausschalten.
 
-- Built with [Claude Code](https://claude.com/claude-code).
-- The LG version builds on what [@danielthejoker18](https://github.com/danielthejoker18) found in [FreeMyTvWebOS](https://github.com/danielthejoker18/FreeMyTvWebOS) (MIT): installing through Developer Mode and opening apps through the TV's service bus.
-- On Samsung TVs it installs with [TizenBrew Installer](https://github.com/reisxd/TizenBrewInstaller) by [@reisxd](https://github.com/reisxd).
-- This product uses the TMDB API but is not endorsed or certified by [TMDB](https://www.themoviedb.org/).
-- Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0). Prices from the [Binance](https://www.binance.com/) public API.
-- Icons: [Material Symbols](https://fonts.google.com/icons) (Apache 2.0). Font: [Inter](https://rsms.me/inter/) (SIL OFL 1.1). Coin logos: [cryptocurrency-icons](https://github.com/spothq/cryptocurrency-icons) (CC0).
-- Not affiliated with Google, TCL, LG, Samsung or any streaming service. App names and logos belong to their owners.
+## Selbst bauen (für Fortgeschrittene)
 
-## License
+Mit eigenem Ort für das Wetter (und optional einem TMDB-Schlüssel für Film-Tipps):
 
-[MIT](LICENSE). Fork it, change it, ship it.
+1. Projekt herunterladen (Code → Download ZIP oder `git clone`).
+2. Für die Hintergründe `theme.zip` aus den [Releases](https://github.com/Lampe332/free-my-tv-lg/releases/latest) in einen Ordner `theme/` im Projekt entpacken. Ohne sie gibt es das schlichte Design.
+3. `python webos/build.py` einmal ausführen. Es legt `config.properties` an: dort `city`, `latitude` und `longitude` eintragen (Dezimalgrad, z. B. `47.37` / `8.54`).
+4. Nochmal `python webos/build.py`. Es endet mit `Built FreeMyTV-webos.ipk`.
+5. Installieren wie in [Weg B](#weg-b-mit-dem-install-skript-python): `python webos/install.py <IP>`.
+
+`config.properties` bleibt bei dir und kommt nie ins Repo. Vorschau im Browser: `python webos/build.py --preview`, dann `out/webos/index.html` öffnen.
+
+## Herkunft und Lizenz
+
+- Basiert auf **[Free My TV](https://github.com/simbasjungles/free-my-tv)** von simbasjungles und Mitwirkenden (MIT-Lizenz). Dort gibt es auch die Versionen für **Google TV / Android TV** und **Samsung**. Ihr Code ist in diesem Repo weiterhin enthalten (`app/`, `tizen/`).
+- Diese LG-Version bringt dazu: neues Design mit bewegten Hintergründen, 5-Tage-Wetter, SRF News, neue Einstellungen, Apps verschieben per langem OK-Druck, den Bildschirmschoner mit Wetter, die Home-Taste zurück zu Free My TV (über einen kleinen Hintergrund-Dienst, `webos/service/`) und einen schnelleren Wechsel zurück aus anderen Apps.
+- Hintergründe: **[Flowing Light](https://github.com/Lampe332/flowing-light-backgrounds)** (CC0).
+- Lizenz: [MIT](LICENSE).

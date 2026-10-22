@@ -1,0 +1,6 @@
+{
+  "name": "io.freemytv.service",
+  "version": "1.0.0",
+  "description": "Free My TV: Home in an app opened from Free My TV comes back to it",
+  "main": "service.js"
+}

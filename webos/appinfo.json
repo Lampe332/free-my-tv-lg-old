@@ -10,6 +10,8 @@
   "iconColor": "#FF7A9E",
   "resolution": "1920x1080",
   "handlesRelaunch": true,
+  "splashBackground": "splash.png",
+  "spinnerOnLaunch": false,
   "disableBackHistoryAPI": true,
   "requiredPermissions": ["applications", "applications.launcher"]
 }

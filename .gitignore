@@ -1,5 +1,7 @@
 # Your settings and signing key stay on your machine
 config.properties
+icons/
+theme/
 *.keystore
 *.idsig
 
@@ -12,3 +14,4 @@ __pycache__/
 
 # macOS
 .DS_Store
+.taste-skill/

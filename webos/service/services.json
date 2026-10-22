@@ -1,0 +1,10 @@
+{
+  "id": "io.freemytv.service",
+  "description": "Free My TV: Home in an app opened from Free My TV comes back to it",
+  "services": [
+    {
+      "name": "io.freemytv.service",
+      "description": "Free My TV: Home in an app opened from Free My TV comes back to it"
+    }
+  ]
+}

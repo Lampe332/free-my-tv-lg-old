@@ -2,6 +2,7 @@
 """Installs Free My TV on an LG TV in Developer Mode, over your Wi-Fi.
 
     python3 webos/install.py 192.168.1.50              # install or update, then open it
+    python3 webos/install.py 192.168.1.50 --no-open    # install or update, and leave the TV on what it shows
     python3 webos/install.py 192.168.1.50 --uninstall  # remove it
 
 Before the first install, on the TV: install "Developer Mode" from the LG Content Store, sign in with a free LG
@@ -108,6 +109,9 @@ def main():
     if '"state":"installed"' not in out:
         sys.exit('The TV didn\'t finish installing. It said:\n' + out.strip())
     ssh(ip, key, 'rm -f ' + TEMP)
+    if '--no-open' in sys.argv:
+        print('Installed. It opens with the new version next time.')
+        return
     luna(ip, key, 'luna://com.webos.applicationManager/launch', {'id': APP_ID})
     print('Installed and open on the TV.')
     print('Tip: while Free My TV is open, hold a number key on the remote to open it with that key from anywhere.')

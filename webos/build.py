@@ -7,7 +7,8 @@
     python3 webos/build.py --generic  # without config.properties: the TV's time zone picks the city (releases)
 
 Reads config.properties (the same file as the Android build), puts the web home screen (web/), the app's symbols
-and font (app/assets), the coin logos (app/res/drawable) and webos/appinfo.json together, and packs them the way LG's
+and font (app/assets), the coin logos (app/res/drawable), webos/appinfo.json and the background service that follows
+the Home key (webos/service/) together, and packs them the way LG's
 ares-package does (an ar archive with control.tar.gz and data.tar.gz), so no LG tools are needed. Python 3 only.
 """
 import io
@@ -62,7 +63,8 @@ def build(preview, config):
         info = json.load(f)
     app_id, version = info['id'], info['version']
     app = webapp.files(config, 'webos/build.py')
-    for name in ('appinfo.json', 'icon.png', 'largeIcon.png'):
+    # splash.png: black, what the TV shows while the app starts (rather than its grey screen with a spinner)
+    for name in ('appinfo.json', 'icon.png', 'largeIcon.png', 'splash.png'):
         with open(os.path.join(ROOT, 'webos', name), 'rb') as f:
             app[name] = f.read()
 
@@ -75,11 +77,19 @@ def build(preview, config):
             dirs.add(parent)
             entries.append((base + '/' + parent, None))
         entries.append((base + '/' + path, app[path]))
-    package = json.dumps({'id': app_id, 'version': version, 'app': app_id}, indent=2).encode('utf-8')
+    # The background service (webos/service/): Home in an app opened from Free My TV comes back to it.
+    service_id = app_id + '.service'
+    service = {}
+    for name in ('package.json', 'services.json', 'service.js'):
+        with open(os.path.join(ROOT, 'webos', 'service', name), 'rb') as f:
+            service[name] = f.read()
+    svc = 'usr/palm/services/' + service_id
+    entries += [('usr/palm/services', None), (svc, None)] + [(svc + '/' + n, service[n]) for n in sorted(service)]
+    package = json.dumps({'id': app_id, 'version': version, 'app': app_id, 'services': [service_id]}, indent=2).encode('utf-8')
     entries += [('usr/palm/packages', None), ('usr/palm/packages/' + app_id, None),
                 ('usr/palm/packages/' + app_id + '/packageinfo.json', package)]
 
-    size = sum(len(d) for d in app.values()) + len(package)
+    size = sum(len(d) for d in app.values()) + sum(len(d) for d in service.values()) + len(package)
     control = ('Package: %s\nVersion: %s\nSection: misc\nPriority: optional\nArchitecture: all\nInstalled-Size: %d\n'
                'Maintainer: Free My TV <https://freemytv.io>\nDescription: A fast, ad-free home screen.\n'
                'webOS-Package-Format-Version: 2\nwebOS-Packager-Version: 1.0.0\n' % (app_id, version, size))

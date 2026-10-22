@@ -77,14 +77,29 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 #saver { z-index: 4; }
 
 #home, #drawer {
-  -webkit-transition: -webkit-transform 0.55s cubic-bezier(0.32, 0.72, 0.2, 1), opacity 0.4s;
-  transition: transform 0.55s cubic-bezier(0.32, 0.72, 0.2, 1), opacity 0.4s;
+  -webkit-transition: -webkit-transform 0.42s cubic-bezier(0.32, 0.72, 0.2, 1), opacity 0.32s;
+  transition: transform 0.42s cubic-bezier(0.32, 0.72, 0.2, 1), opacity 0.32s;
+  will-change: transform, opacity;
 }
 .drawer-open #home { -webkit-transform: translateY(-560px); transform: translateY(-560px); }
-#top { -webkit-transition: opacity 0.3s; transition: opacity 0.3s; }
+#top { -webkit-transition: opacity 0.3s; transition: opacity 0.3s; will-change: opacity; }
 .drawer-open #top { opacity: 0; }
 #drawer { -webkit-transform: translateY(560px); transform: translateY(560px); opacity: 0; }
 .drawer-open #drawer { -webkit-transform: none; transform: none; opacity: 1; }
+/* The drawer's layer covers the screen even when closed: only its keys take the Magic Remote's pointer, and only open. */
+#drawer { pointer-events: none; }
+.drawer-open #drawer .key { pointer-events: auto; }
+
+/* Without panels (no prices, and the weather on the home screen), the drawer is one row and rises less. */
+.no-panels.drawer-open #home { -webkit-transform: translateY(-300px); transform: translateY(-300px); }
+.no-panels #drawer { -webkit-transform: translateY(300px); transform: translateY(300px); }
+.no-panels.drawer-open #drawer { -webkit-transform: none; transform: none; }
+.no-panels .key { top: 800px; }
+.no-panels .row-title { top: 742px; }
+
+/* Only transform and opacity animate: 4K TVs draw the page at twice its size, where an animated shadow repaints every
+   frame. The parts that grow on focus are layers of their own, so growing doesn't repaint them either. */
+.tab, .round, .card, .tile, .key, .cell .face { will-change: transform; }
 
 /* MARK: - Title and tabs */
 
@@ -115,8 +130,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   font-weight: 500;
   line-height: 68px;
   color: #6E6E73;
-  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2), background-color 0.25s, box-shadow 0.3s, color 0.25s;
-  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2), background-color 0.25s, box-shadow 0.3s, color 0.25s;
+  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 .tab.on { font-weight: 600; color: #1D1D1F; }
 .tab.focus {
@@ -130,25 +145,41 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .night .tab { color: rgba(245, 245, 247, 0.62); }
 .night .tab.focus { color: #1D1D1F; box-shadow: 0 8px 26px rgba(0, 0, 0, 0.4); }
 
-/* Crypto quotes at the right end of the tab row: a quiet detail. */
+/* Crypto quotes at the right end of the tab row, a chip each: the coin, its price, and its day as a green or red pill. */
 #quotes {
   position: absolute;
   right: 80px;
-  top: 178px;
-  height: 28px;
-  font-size: 21px;
-  line-height: 28px;
-  color: #8E8E93;
+  top: 164px;
+  height: 52px;
   white-space: nowrap;
+  color: #1D1D1F;
   -webkit-transition: opacity 0.25s;
   transition: opacity 0.25s;
   font-feature-settings: 'tnum';
 }
-#quotes .q { display: inline-block; margin-left: 24px; }
-#quotes svg { width: 15px; height: 15px; vertical-align: -1px; margin-right: 6px; fill: rgba(142, 142, 147, 0.7); }
+#quotes .q, #quotes .stale {
+  display: inline-block;
+  vertical-align: top;
+  height: 52px;
+  margin-left: 12px;
+  padding: 0 10px 0 16px;
+  border-radius: 26px;
+  line-height: 52px;
+  background: rgba(255, 255, 255, 0.78);
+}
+#quotes svg { width: 32px; height: 32px; vertical-align: -9px; margin-right: 8px; fill: #6E6E73; }
+#quotes .p { font-size: 24px; font-weight: 600; margin-right: 10px; }
+#quotes .c { display: inline-block; vertical-align: 1px; height: 34px; padding: 0 12px; border-radius: 17px; font-size: 20px; font-weight: 600; line-height: 34px; }
+#quotes .up { color: #1E7A35; background: rgba(36, 138, 61, 0.16); }
+#quotes .down { color: #C1001A; background: rgba(215, 0, 21, 0.14); }
+#quotes .stale { padding: 0 16px; font-size: 20px; font-weight: 500; color: #6E6E73; }
 #quotes.hide { opacity: 0; }
-.night #quotes { color: rgba(245, 245, 247, 0.62); }
-.night #quotes svg { fill: rgba(245, 245, 247, 0.55); }
+.night #quotes { color: #F5F5F7; }
+.night #quotes .q, .night #quotes .stale { background: rgba(28, 28, 32, 0.84); }
+.night #quotes svg { fill: rgba(245, 245, 247, 0.7); }
+.night #quotes .up { color: #4CD964; background: rgba(48, 209, 88, 0.18); }
+.night #quotes .down { color: #FF6B60; background: rgba(255, 69, 58, 0.18); }
+.night #quotes .stale { color: rgba(245, 245, 247, 0.68); }
 
 /* Live TV, HDMI Inputs and Settings: glass circles; the focused one turns white, with its name below. */
 .round {
@@ -161,8 +192,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background: linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.5));
   box-shadow: 0 6px 26px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   color: #1D1D1F;
-  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.3s, background-color 0.25s;
-  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.3s, background-color 0.25s;
+  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 .round .sym { position: absolute; left: 20px; top: 20px; width: 28px; height: 28px; }
 .round.focus { background: #FFF; -webkit-transform: scale(1.1); transform: scale(1.1); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24); }
@@ -212,8 +243,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background-size: cover;
   background-position: center;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
-  -webkit-transition: box-shadow 0.32s;
-  transition: box-shadow 0.32s;
 }
 .card .img::after {
   content: '';
@@ -264,20 +293,48 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .night .card .name { color: #F5F5F7; }
 .night .card .meta { color: rgba(245, 245, 247, 0.62); }
 
-/* Without a TMDB key (or picks yet): the date and the time instead of the cards. */
+/* Without a TMDB key (or picks yet): the time and the date in the title's place, and in the cards' places the weather
+   at a glance beside the TV's devices. The tabs have nothing to show then, so they step aside. */
 #clock {
   position: absolute;
   left: 76px;
-  top: 300px;
-  font-size: 176px;
+  top: 40px;
+  font-size: 150px;
   font-weight: 200;
   letter-spacing: -0.01em;
   line-height: 1;
+  white-space: nowrap;
   color: #1D1D1F;
   display: none;
 }
-#clock .date { display: block; font-size: 40px; font-weight: 500; letter-spacing: 0; margin-top: 18px; color: #6E6E73; }
+#clock .date { display: inline-block; font-size: 40px; font-weight: 500; letter-spacing: 0; margin-left: 40px; color: #6E6E73; }
 .no-picks #clock { display: block; }
+.no-picks #title, .no-picks #tabs { display: none; }
+
+#glance { top: 262px; height: 442px; display: none; }
+#glance .head { top: 40px; font-size: 30px; }
+#glance .now { top: 108px; height: 140px; }
+#glance .now .sym { width: 80px; height: 80px; vertical-align: 20px; margin-right: 22px; }
+#glance .now .temp { font-size: 140px; line-height: 140px; }
+#glance .cond { top: 284px; font-size: 38px; }
+#glance .range { top: 338px; font-size: 28px; }
+#glance .split { left: 400px; top: 40px; bottom: 40px; }
+#glance .hours { left: 436px; right: 36px; top: 96px; height: 190px; }
+#glance .hour .t { font-size: 25px; white-space: nowrap; }
+#glance .hour .sym { width: 44px; height: 44px; margin: 26px auto 22px; }
+#glance .hour .d { font-size: 34px; }
+#glance .sun { left: 436px; top: 312px; font-size: 26px; }
+#glance .sun > span { display: block; margin: 0 0 14px; }
+#glance .sun .sym { width: 28px; height: 28px; vertical-align: -5px; margin-right: 12px; }
+
+/* A device in a tall card's place: what kind it is, its port and its name, on the card. */
+.card.device .img { background-color: rgba(255, 255, 255, 0.82); color: #1D1D1F; }
+.card.device .img .sym { position: absolute; left: 34px; top: 38px; width: 76px; height: 76px; }
+.card.device .foot { position: absolute; left: 34px; right: 28px; bottom: 32px; }
+.card.device .port { font-size: 25px; font-weight: 500; color: #6E6E73; margin-bottom: 8px; }
+.card.device .dev { font-size: 34px; font-weight: 600; line-height: 40px; max-height: 80px; overflow: hidden; }
+.night .card.device .img { background-color: rgba(44, 44, 46, 0.86); color: #F5F5F7; }
+.night .card.device .port { color: rgba(245, 245, 247, 0.62); }
 .night #clock { color: #F5F5F7; }
 .night #clock .date { color: rgba(245, 245, 247, 0.62); }
 
@@ -306,10 +363,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   overflow: hidden;
   color: #FFF;
   box-shadow: 0 4px 22px rgba(0, 0, 0, 0.14);
-  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.3s;
-  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.3s;
+  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 .tile img { position: absolute; left: 50%; top: 50%; max-width: 76%; max-height: 62%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
+.tile.full img { max-width: 100%; max-height: 100%; height: 100%; }
 .tile .word {
   position: absolute;
   left: 8%;
@@ -367,11 +425,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   border-radius: 20px;
   text-align: center;
   color: #1D1D1F;
-  -webkit-transition: -webkit-transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.28s, background-color 0.2s;
-  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.28s, background-color 0.2s;
+  -webkit-transition: -webkit-transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 .key .sym { position: absolute; left: 50%; top: 33px; width: 34px; height: 34px; margin-left: -17px; }
 .key .label { position: absolute; left: 8px; right: 8px; top: 82px; font-size: 23px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.key.long .label { white-space: normal; top: 74px; font-size: 21px; line-height: 23px; max-height: 46px; }
 .key.off { color: #8E8E93; }
 .key.focus { background: #F5F5F7; color: #1C1C1E; -webkit-transform: scale(1.07); transform: scale(1.07); box-shadow: 0 16px 34px rgba(0, 0, 0, 0.42); z-index: 2; }
 .night .key { color: rgba(255, 255, 255, 0.95); }
@@ -385,22 +444,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .night .panel .head { color: rgba(255, 255, 255, 0.7); }
 .night .panel .side { color: rgba(255, 255, 255, 0.6); }
 
-#weather .now { position: absolute; left: 34px; top: 82px; height: 100px; white-space: nowrap; }
-#weather .now .sym { width: 56px; height: 56px; vertical-align: 12px; margin-right: 18px; }
-#weather .now .temp { font-size: 100px; font-weight: 300; line-height: 100px; font-feature-settings: 'tnum'; }
-#weather .cond { position: absolute; left: 34px; top: 192px; font-size: 29px; font-weight: 500; white-space: nowrap; }
-#weather .range { position: absolute; left: 34px; top: 236px; font-size: 23px; font-weight: 500; color: #6E6E73; white-space: nowrap; font-feature-settings: 'tnum'; }
-#weather .split { position: absolute; left: 391px; top: 34px; bottom: 34px; width: 2px; background: rgba(0, 0, 0, 0.1); }
-#weather .hours { position: absolute; left: 422px; right: 30px; top: 74px; height: 140px; }
-#weather .hour { position: absolute; top: 0; text-align: center; font-feature-settings: 'tnum'; }
-#weather .hour .t { font-size: 22px; font-weight: 500; color: #6E6E73; }
-#weather .hour .sym { display: block; width: 30px; height: 30px; margin: 22px auto 18px; }
-#weather .hour .d { font-size: 26px; font-weight: 500; }
-#weather .sun { position: absolute; left: 422px; top: 236px; font-size: 23px; font-weight: 500; color: #6E6E73; white-space: nowrap; }
-#weather .sun .sym { width: 22px; height: 22px; vertical-align: -3px; margin-right: 10px; }
-#weather .sun span { margin-right: 36px; }
-.night #weather .range, .night #weather .hour .t, .night #weather .sun { color: rgba(255, 255, 255, 0.68); }
-.night #weather .split { background: rgba(255, 255, 255, 0.14); }
+.wx .now { position: absolute; left: 34px; top: 82px; height: 100px; white-space: nowrap; }
+.wx .now .sym { width: 56px; height: 56px; vertical-align: 12px; margin-right: 18px; }
+.wx .now .temp { font-size: 100px; font-weight: 300; line-height: 100px; font-feature-settings: 'tnum'; }
+.wx .cond { position: absolute; left: 34px; top: 192px; font-size: 29px; font-weight: 500; white-space: nowrap; }
+.wx .range { position: absolute; left: 34px; top: 236px; font-size: 23px; font-weight: 500; color: #6E6E73; white-space: nowrap; font-feature-settings: 'tnum'; }
+.wx .split { position: absolute; left: 391px; top: 34px; bottom: 34px; width: 2px; background: rgba(0, 0, 0, 0.1); }
+.wx .hours { position: absolute; left: 422px; right: 30px; top: 74px; height: 140px; }
+.wx .hour { position: absolute; top: 0; text-align: center; font-feature-settings: 'tnum'; }
+.wx .hour .t { font-size: 22px; font-weight: 500; color: #6E6E73; }
+.wx .hour .sym { display: block; width: 30px; height: 30px; margin: 22px auto 18px; }
+.wx .hour .d { font-size: 26px; font-weight: 500; }
+.wx .sun { position: absolute; left: 422px; top: 236px; font-size: 23px; font-weight: 500; color: #6E6E73; white-space: nowrap; }
+.wx .sun .sym { width: 22px; height: 22px; vertical-align: -3px; margin-right: 10px; }
+.wx .sun span { margin-right: 36px; }
+.night .wx .range, .night .wx .hour .t, .night .wx .sun { color: rgba(255, 255, 255, 0.68); }
+.night .wx .split { background: rgba(255, 255, 255, 0.14); }
 
 #prices .coin { position: absolute; left: 34px; right: 34px; height: 40px; font-size: 29px; font-weight: 500; white-space: nowrap; }
 #prices .coin svg { position: absolute; left: 2px; top: 6px; width: 26px; height: 26px; fill: #6E6E73; }
@@ -439,41 +498,83 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   border-radius: 22px;
   overflow: hidden;
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.08);
-  -webkit-transition: -webkit-transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.28s;
-  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.28s;
+  -webkit-transition: -webkit-transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 }
 .cell .face img { position: absolute; left: 50%; top: 50%; max-width: 70%; max-height: 60%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
+.cell .face.full img { max-width: 100%; max-height: 100%; height: 100%; }
 .cell .face .word { position: absolute; left: 6%; right: 6%; top: 50%; margin-top: -22px; height: 44px; line-height: 44px; text-align: center; font-size: 32px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #FFF; }
 .cell .label { position: absolute; left: 0; right: 0; top: 186px; text-align: center; font-size: 24px; font-weight: 500; color: rgba(255, 255, 255, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cell.focus .face { -webkit-transform: scale(1.08); transform: scale(1.08); box-shadow: 0 16px 34px rgba(0, 0, 0, 0.55), inset 0 0 0 2px rgba(255, 255, 255, 0.4); }
 .cell.focus .label { color: #FFF; }
 
-#settings .box, #shelfedit .box {
-  position: absolute;
-  left: 560px;
-  top: 150px;
-  width: 800px;
-  border-radius: 40px;
-  padding: 30px 30px 26px;
-  box-sizing: border-box;
-  background: -webkit-linear-gradient(top, rgba(34, 36, 44, 0.96), rgba(18, 20, 26, 0.97));
-  background: linear-gradient(rgba(34, 36, 44, 0.96), rgba(18, 20, 26, 0.97));
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+/* Settings: the groups at the left, the chosen group's settings at the right, on the whole screen. A row has its name
+   and, under it, what it does; its value sits at the right: the options of a choice, a switch, or › for an action. */
+#settings { background: rgba(10, 10, 12, 0.96); }
+#settings .title { position: absolute; left: 120px; right: auto; top: 70px; margin: 0; text-align: left; font-size: 56px; font-weight: 700; letter-spacing: -0.01em; }
+#settings .groups { position: absolute; left: 120px; top: 200px; width: 460px; }
+#settings .group {
+  position: relative;
+  height: 84px;
+  margin-bottom: 10px;
+  padding: 0 28px;
+  border-radius: 24px;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 84px;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.75);
+  -webkit-transition: -webkit-transform 0.16s;
+  transition: transform 0.16s;
+  will-change: transform;
 }
-.box .title { font-size: 38px; font-weight: 700; padding: 6px 18px 18px; letter-spacing: -0.01em; }
-.box .title .sym { width: 36px; height: 36px; vertical-align: -5px; margin-right: 14px; color: rgba(255, 255, 255, 0.85); }
-.box .list { position: relative; overflow: hidden; }
-.box .rows { -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1); transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1); }
-.box .row { position: relative; height: 70px; margin-bottom: 8px; border-radius: 20px; font-size: 30px; font-weight: 600; line-height: 70px; padding: 0 24px; white-space: nowrap; -webkit-transition: background-color 0.18s; transition: background-color 0.18s; }
-.box .row.focus { background: rgba(255, 255, 255, 0.13); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14); }
-.box .row .value { position: absolute; right: 24px; top: 0; color: rgba(255, 255, 255, 0.92); font-weight: 500; }
-.box .row .value .chev { color: rgba(255, 255, 255, 0.35); margin: 0 10px; }
-.box .row.dim { color: rgba(255, 255, 255, 0.4); }
-.box .hint { padding: 14px 18px 0; font-size: 22px; font-weight: 500; color: rgba(255, 255, 255, 0.5); }
-.toggle { position: absolute; right: 24px; top: 13px; width: 78px; height: 44px; border-radius: 22px; background: #3A3D45; -webkit-transition: background-color 0.2s; transition: background-color 0.2s; }
-.toggle::after { content: ''; position: absolute; left: 4px; top: 4px; width: 36px; height: 36px; border-radius: 18px; background: #FFF; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); -webkit-transition: -webkit-transform 0.2s; transition: transform 0.2s; }
+#settings .group .sym { width: 34px; height: 34px; vertical-align: -6px; margin-right: 22px; }
+#settings .group.on { background: rgba(255, 255, 255, 0.1); color: #FFF; }
+#settings .group.focus { background: #FFF; color: #111; -webkit-transform: scale(1.04); transform: scale(1.04); }
+#settings .pane { position: absolute; left: 650px; top: 190px; width: 1160px; height: 780px; overflow: hidden; }
+#settings .rows { padding-top: 10px; -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1); transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1); }
+#settings .row { position: relative; margin: 0 10px 10px; padding: 22px 30px 22px; border-radius: 24px; }
+#settings .row.sub { margin-left: 80px; }
+#settings .row .label { font-size: 30px; font-weight: 600; line-height: 48px; white-space: nowrap; }
+#settings .row .info { margin-top: 6px; font-size: 23px; font-weight: 500; line-height: 30px; color: rgba(255, 255, 255, 0.62); }
+#settings .row .value { position: absolute; right: 30px; top: 22px; height: 48px; white-space: nowrap; }
+#settings .row.focus { background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.85); }
+#settings .opt {
+  display: inline-block;
+  height: 48px;
+  margin-left: 10px;
+  padding: 0 22px;
+  border-radius: 24px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 48px;
+  color: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.24);
+}
+#settings .opt.on { background: rgba(255, 255, 255, 0.88); color: #111; box-shadow: none; }
+#settings .opt.hot { background: #FFF; color: #111; box-shadow: none; -webkit-transform: scale(1.08); transform: scale(1.08); }
+#settings .state { display: inline-block; vertical-align: top; margin-right: 18px; font-size: 24px; font-weight: 600; line-height: 48px; color: rgba(255, 255, 255, 0.7); }
+#settings .go { font-size: 44px; font-weight: 500; line-height: 46px; color: rgba(255, 255, 255, 0.55); }
+#settings .row.app-row { padding: 18px 30px 18px 150px; }
+#settings .row.app-row .label { line-height: 54px; }
+#settings .row.app-row .value { top: 21px; }
+#settings .row.app-row .face { position: absolute; left: 30px; top: 18px; width: 96px; height: 54px; border-radius: 10px; overflow: hidden; }
+#settings .row.app-row .face img { position: absolute; left: 50%; top: 50%; max-width: 80%; max-height: 70%; -webkit-transform: translate(-50%, -50%); transform: translate(-50%, -50%); }
+#settings .row.app-row .face.full img { max-width: 100%; max-height: 100%; height: 100%; }
+#settings .row.app-row .face .word { position: absolute; left: 6%; right: 6%; top: 50%; margin-top: -11px; height: 22px; line-height: 22px; text-align: center; font-weight: 700; white-space: nowrap; overflow: hidden; color: #FFF; }
+#settings .keys { position: absolute; left: 120px; bottom: 64px; font-size: 23px; font-weight: 500; color: rgba(255, 255, 255, 0.62); }
+.toggle { position: relative; display: inline-block; vertical-align: top; width: 84px; height: 48px; border-radius: 24px; background: #3A3D45; }
+.toggle::after { content: ''; position: absolute; left: 5px; top: 5px; width: 38px; height: 38px; border-radius: 19px; background: #FFF; -webkit-transition: -webkit-transform 0.16s; transition: transform 0.16s; }
 .toggle.on { background: #3FD69B; }
-.toggle.on::after { -webkit-transform: translateX(34px); transform: translateX(34px); }
+.toggle.on::after { -webkit-transform: translateX(36px); transform: translateX(36px); }
+
+/* An app picked up to move (OK held on it): it rises and wiggles, the others step back; ← → swap it along. */
+.moving-app .tile { opacity: 0.55; -webkit-transition: -webkit-transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s; transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s; }
+.moving-app .tile.focus, .themed.moving-app .tile.focus { opacity: 1; -webkit-transform: translateY(-14px) scale(1.16); transform: translateY(-14px) scale(1.16); }
+.moving-app .tile.focus img { -webkit-animation: wiggle 0.34s ease-in-out infinite alternate; animation: wiggle 0.34s ease-in-out infinite alternate; }
+@-webkit-keyframes wiggle { from { -webkit-transform: translate(-50%, -50%) rotate(-2deg); } to { -webkit-transform: translate(-50%, -50%) rotate(2deg); } }
+@keyframes wiggle { from { transform: translate(-50%, -50%) rotate(-2deg); } to { transform: translate(-50%, -50%) rotate(2deg); } }
 
 /* MARK: - Screensaver: the picks' photos, slowly moving, and a clock */
 
@@ -521,6 +622,254 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   z-index: 50;
 }
 #toast.on { opacity: 1; -webkit-transform: translate(-50%, 0); transform: translate(-50%, 0); }
+
+/* MARK: - Theme: a theme pack's colors and wallpapers (when the build found theme/), light by day, dark by night
+
+   The same places and focus moves; flat surfaces with a hairline edge instead of glass, and a ring on the focused
+   thing. Nothing at rest casts a shadow, which also keeps each focus change a small repaint. */
+
+#sky .wall { position: absolute; left: -60px; top: -34px; width: 2040px; height: 1148px; background-size: cover; background-position: center; display: none; will-change: transform; }
+/* The wallpaper's own color under its still: a TV draws the still's tiles a moment after the rest when the app starts
+   or comes back, and shows the layer's color (the page's black, without one) until then. */
+.themed #sky .wall { display: block; background-color: #DDD3C2; background-image: url(theme/day.jpg); }
+.themed.night #sky .wall { background-color: #03060B; background-image: url(theme/night.jpg); }
+.themed #sky .grad, .themed #sky .lift, .themed.no-picks #sky .veil { display: none; }
+/* The moving wallpaper: the theme's loop (rendered in Blender) over its still, the frame exactly the screen. */
+#sky .wall video { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
+.themed.moving #sky .wall { left: 0; top: 0; width: 1920px; height: 1080px; -webkit-transform: none !important; transform: none !important; }
+.themed.moving #sky .wall video { display: block; visibility: hidden; }
+.themed.moving.film-on #sky .wall video { visibility: visible; }   /* only once it plays: until then a TV shows black */
+.themed { background: #000; }   /* only seen beside the stage in a window of another shape: like a TV's black bars */
+.themed #sky { background: #DDD3C2; }
+.themed.night #sky { background: #03060B; }
+.themed #sky .veil { background: rgba(221, 211, 194, 0.8); }
+.themed.night #sky .veil { background: rgba(3, 6, 11, 0.8); }
+
+/* Light: Marble Gold */
+.themed #title, .themed .tab.on, .themed #clock, .themed .card .name, .themed .panel, .themed .key, .themed .round,
+.themed .round.focus .tip, .themed .card.device .img { color: #28251F; }
+.themed .tab, .themed #clock .date, .themed .card .meta, .themed .row-title, .themed .panel .head, .themed .wx .range,
+.themed .wx .hour .t, .themed .wx .sun, .themed .card.device .port { color: #625747; }
+.themed .key.off { color: #786C59; }
+.themed .round, .themed .glass, .themed .card.device .img {
+  background: rgba(242, 235, 221, 0.86);
+  box-shadow: inset 0 0 0 1px rgba(168, 154, 130, 0.7);
+}
+.themed #platter { background: rgba(242, 235, 221, 0.55); box-shadow: inset 0 0 0 1px rgba(168, 154, 130, 0.55); }
+.themed .wx .split { background: rgba(98, 87, 71, 0.22); }
+.themed .card.device .img .sym, .themed #glance .now .sym { color: #725321; }
+.themed .tab.focus, .themed .round.focus, .themed .key.focus { background: #725321; color: #FFF8EC; box-shadow: none; }
+.themed .tab.focus, .themed .round.focus, .themed .key.focus, .themed .tile.focus, .themed .card.focus .img,
+.themed .cell.focus .face { outline: 4px solid #624513; outline-offset: 6px; }
+.themed .tile, .themed .tile.focus, .themed .card .img, .themed .card.focus .img { box-shadow: none; }
+.themed .tile::after, .themed .card .img::after { display: none; }
+.themed .sheet { background: rgba(221, 211, 194, 0.98); color: #28251F; }
+.themed .cell .face { box-shadow: inset 0 0 0 1px rgba(40, 37, 31, 0.12); }
+.themed .cell.focus .face { box-shadow: none; }
+.themed .cell .label { color: #625747; }
+.themed .cell.focus .label { color: #28251F; }
+.themed #quotes { color: #28251F; }
+.themed #quotes .q, .themed #quotes .stale { background: rgba(242, 235, 221, 0.86); box-shadow: inset 0 0 0 1px rgba(168, 154, 130, 0.7); }
+.themed #quotes svg { fill: #725321; }
+.themed #quotes .up { color: #22663A; background: rgba(48, 91, 58, 0.14); }
+.themed #quotes .down { color: #A1201B; background: rgba(161, 32, 27, 0.12); }
+.themed #quotes .stale { color: #625747; }
+.themed.night #quotes { color: #F2F5F9; }
+.themed.night #quotes .q, .themed.night #quotes .stale { background: rgba(16, 25, 37, 0.84); box-shadow: inset 0 0 0 1px rgba(64, 80, 102, 0.9); }
+.themed.night #quotes svg { fill: #BDA5F5; }
+.themed.night #quotes .up { color: #8FE3A8; background: rgba(143, 227, 168, 0.16); }
+.themed.night #quotes .down { color: #FF8A80; background: rgba(255, 138, 128, 0.16); }
+.themed.night #quotes .stale { color: #BCC8D7; }
+
+/* Dark: Cosmic Violet */
+.themed.night #title, .themed.night .tab.on, .themed.night #clock, .themed.night .card .name, .themed.night .panel,
+.themed.night .key, .themed.night .round, .themed.night .round.focus .tip, .themed.night .card.device .img { color: #F2F5F9; }
+.themed.night .tab, .themed.night #clock .date, .themed.night .card .meta, .themed.night .row-title,
+.themed.night .panel .head, .themed.night .wx .range, .themed.night .wx .hour .t, .themed.night .wx .sun,
+.themed.night .card.device .port { color: #BCC8D7; }
+.themed.night .key.off { color: #8996A6; }
+.themed.night .round, .themed.night .glass, .themed.night .card.device .img {
+  background: rgba(16, 25, 37, 0.84);
+  box-shadow: inset 0 0 0 1px rgba(64, 80, 102, 0.9);
+}
+.themed.night #platter { background: rgba(16, 25, 37, 0.6); box-shadow: inset 0 0 0 1px rgba(64, 80, 102, 0.7); }
+.themed.night .wx .split { background: rgba(188, 200, 215, 0.18); }
+.themed.night .card.device .img .sym, .themed.night #glance .now .sym { color: #BDA5F5; }
+.themed.night .tab.focus, .themed.night .round.focus, .themed.night .key.focus { background: #BDA5F5; color: #171026; box-shadow: none; }
+.themed.night .tab.focus, .themed.night .round.focus, .themed.night .key.focus, .themed.night .tile.focus,
+.themed.night .card.focus .img, .themed.night .cell.focus .face { outline-color: #D8C8FF; }
+.themed.night .tile, .themed.night .tile.focus, .themed.night .card .img { box-shadow: none; }
+.themed.night .sheet { background: rgba(3, 6, 11, 0.97); color: #F2F5F9; }
+.themed.night .cell .face { box-shadow: inset 0 0 0 1px rgba(64, 80, 102, 0.9); }
+.themed.night .cell.focus .face { box-shadow: none; }
+.themed.night .cell .label { color: #BCC8D7; }
+.themed.night .cell.focus .label { color: #F2F5F9; }
+
+/* Named pills for Live TV, the inputs and Settings, in the same order at the top right. */
+.round .name, #apps h2 .count, #shelftitle, #tilename { display: none; }
+.themed #buttons { position: absolute; right: 80px; top: 62px; white-space: nowrap; }
+.themed .round { position: relative; display: inline-block; vertical-align: top; top: auto; width: auto; height: 76px; margin-left: 14px; padding: 0 30px 0 70px; border-radius: 38px; }
+.themed .round .sym { left: 26px; top: 22px; width: 32px; height: 32px; }
+.themed .round .name { display: inline; font-size: 26px; font-weight: 600; line-height: 76px; white-space: nowrap; }
+.themed .round .tip { display: none; }
+.themed .round.focus { -webkit-transform: scale(1.06); transform: scale(1.06); }
+
+/* The shelf without its glass bar: the apps on the wallpaper under a title, the focused one's name below it. */
+.themed #platter { display: none; }
+.themed #shelftitle { display: block; position: absolute; top: 800px; font-size: 26px; font-weight: 600; color: #3B3228; }
+.themed .tile.focus { -webkit-transform: scale(1.12); transform: scale(1.12); }
+.themed #tilename {
+  display: block;
+  position: absolute;
+  top: 1008px;
+  width: 480px;
+  margin-left: -240px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #28251F;
+  opacity: 0;
+  -webkit-transition: opacity 0.2s;
+  transition: opacity 0.2s;
+}
+.themed #tilename.on { opacity: 1; }
+.themed.night #shelftitle { color: #BCC8D7; }
+.themed.night #tilename { color: #F2F5F9; }
+.themed #clock .date { color: #4F4536; }
+
+/* All Apps over the wallpaper alone (the home screen steps away), its title and count at the left. */
+.themed #apps { background: rgba(221, 211, 194, 0.5); }
+.themed.night #apps { background: rgba(3, 6, 11, 0.55); }
+.themed.apps-open #home { opacity: 0; }
+.themed #apps h2 { left: 130px; right: 130px; top: 78px; text-align: left; font-size: 52px; letter-spacing: -0.01em; }
+.themed #apps h2 .count { display: inline; margin-left: 22px; font-size: 30px; font-weight: 500; color: #625747; }
+.themed.night #apps h2 .count { color: #BCC8D7; }
+
+
+/* MARK: - Without picks: the next days in the weather card, the news over the devices, the focused app's name
+
+   The weather card keeps today at the left (now, the range, sunrise and sunset) and gives its right half to the next
+   hours over the next five days. The news takes the top of the right column; the devices under it turn into short
+   cards. The focused app's name sits on a chip of the cards' surface: over the night film bare text fell to 4.7:1. */
+
+#glance .head { top: 34px; font-size: 28px; }
+#glance .now { top: 84px; height: 128px; }
+#glance .now .sym { width: 72px; height: 72px; vertical-align: 18px; margin-right: 20px; }
+#glance .now .temp { font-size: 128px; line-height: 128px; }
+#glance .cond { top: 228px; font-size: 36px; }
+#glance .range { top: 280px; font-size: 26px; }
+#glance .sun { left: 34px; top: 330px; font-size: 23px; }
+#glance .sun > span { display: block; margin: 0 0 10px; }
+#glance .sun .sym { width: 26px; height: 26px; vertical-align: -5px; margin-right: 10px; }
+#glance .hours { top: 34px; height: 150px; }
+#glance .hour .t { font-size: 24px; }
+#glance .hour .sym { width: 40px; height: 40px; margin: 16px auto 14px; }
+#glance .hour .d { font-size: 30px; }
+
+.wx .days { display: none; }
+#glance .days, #saver .wx .days { display: block; position: absolute; }
+#glance .days { left: 436px; right: 36px; top: 236px; height: 150px; }
+#glance .days::before { content: ''; position: absolute; left: 0; right: 0; top: -18px; height: 2px; background: rgba(0, 0, 0, 0.1); }
+.wx .day { position: absolute; top: 0; text-align: center; font-feature-settings: 'tnum'; }
+.wx .day .t { font-size: 24px; font-weight: 500; color: #6E6E73; white-space: nowrap; }
+.wx .day .sym { display: block; width: 40px; height: 40px; margin: 16px auto 14px; }
+.wx .day .d { font-size: 30px; font-weight: 500; white-space: nowrap; }
+.wx .day .m { margin-left: 10px; font-size: 24px; color: #6E6E73; }
+.night .wx .day .t, .night .wx .day .m { color: rgba(255, 255, 255, 0.68); }
+.night #glance .days::before { background: rgba(255, 255, 255, 0.14); }
+.themed .wx .day .t, .themed .wx .day .m { color: #625747; }
+.themed.night .wx .day .t, .themed.night .wx .day .m { color: #BCC8D7; }
+.themed #glance .days::before { background: rgba(98, 87, 71, 0.22); }
+.themed.night #glance .days::before { background: rgba(188, 200, 215, 0.18); }
+
+#news { left: 1160px; top: 262px; width: 680px; height: 270px; padding-top: 78px; box-sizing: border-box; display: none; }
+#news.tall { height: 442px; }
+#news .what {
+  margin: 0 34px 16px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 33px;
+  max-height: 66px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+#news .when, #news .empty { font-weight: 500; color: #6E6E73; }
+#news .empty { margin: 0 34px; font-size: 26px; }
+.night #news .when, .night #news .empty { color: rgba(255, 255, 255, 0.68); }
+.themed #news .when, .themed #news .empty { color: #625747; }
+.themed.night #news .when, .themed.night #news .empty { color: #BCC8D7; }
+
+.card.short { top: 552px; height: 152px; }
+.card.short .img .sym { left: 28px; top: 28px; width: 48px; height: 48px; }
+.card.short .foot { left: 28px; right: 24px; top: 0; bottom: 0; }
+.card.short .port { position: absolute; left: 66px; top: 38px; margin: 0; font-size: 22px; line-height: 28px; }
+.card.short .dev { position: absolute; left: 0; right: 0; bottom: 22px; font-size: 30px; line-height: 38px; max-height: 38px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.themed #tilename {
+  top: 1000px;
+  width: auto;
+  height: 42px;
+  margin-left: 0;
+  padding: 0 22px;
+  border-radius: 21px;
+  line-height: 42px;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  background: rgba(242, 235, 221, 0.86);
+  box-shadow: inset 0 0 0 1px rgba(168, 154, 130, 0.7);
+}
+.themed.night #tilename { background: rgba(16, 25, 37, 0.84); box-shadow: inset 0 0 0 1px rgba(64, 80, 102, 0.9); }
+
+/* The screensaver: the weather on a dark card under the clock (the saver is always dark). */
+#saver .float { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; -webkit-transition: -webkit-transform 3s ease-in-out; transition: transform 3s ease-in-out; }
+#saver .news { position: absolute; left: 96px; top: 704px; width: 760px; padding: 24px 34px 26px; box-sizing: border-box; border-radius: 30px; color: #F2F5F9; background: rgba(16, 25, 37, 0.84); box-shadow: inset 0 0 0 1px rgba(64, 80, 102, 0.9); }
+#saver .clock + .news { top: 330px; }   /* no weather above it */
+#saver .news .head { font-size: 23px; font-weight: 600; color: #BCC8D7; margin-bottom: 8px; }
+#saver .news .what { font-size: 28px; font-weight: 600; line-height: 36px; max-height: 72px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+#saver .wx { position: absolute; left: 96px; top: 330px; width: 760px; height: 350px; border-radius: 30px; color: #F2F5F9; background: rgba(16, 25, 37, 0.84); box-shadow: inset 0 0 0 1px rgba(64, 80, 102, 0.9); }
+#saver .wx .head { position: absolute; left: 34px; top: 28px; font-size: 25px; font-weight: 600; color: #BCC8D7; white-space: nowrap; }
+#saver .wx .now { top: 72px; }
+#saver .wx .cond { left: 320px; top: 92px; font-size: 32px; }
+#saver .wx .range { left: 320px; top: 140px; font-size: 25px; color: #BCC8D7; }
+#saver .wx .split, #saver .wx .hours, #saver .wx .sun { display: none; }
+#saver .wx .days { left: 34px; right: 34px; top: 204px; height: 130px; }
+#saver .wx .day .t, #saver .wx .day .m { color: #BCC8D7; }
+
+/* Settings in the theme's colours: the focused group or option in the theme's accent, rows on its card surface. */
+.themed #settings { background: rgba(221, 211, 194, 0.97); }
+.themed #settings .group, .themed #settings .row .info, .themed #settings .state, .themed #settings .go, .themed #settings .keys { color: #625747; }
+.themed #settings .group.on { background: #F2EBDD; color: #28251F; }
+.themed #settings .group.focus { background: #725321; color: #FFF8EC; }
+.themed #settings .row.focus { background: #F2EBDD; box-shadow: inset 0 0 0 3px #725321; }
+.themed #settings .opt { color: #28251F; box-shadow: inset 0 0 0 2px #A89A82; }
+.themed #settings .opt.on { background: #28251F; color: #F2EBDD; box-shadow: none; }
+.themed #settings .opt.hot { background: #725321; color: #FFF8EC; box-shadow: 0 0 0 3px #F2EBDD, 0 0 0 6px #725321; }
+.themed .toggle { background: #A89A82; }
+.themed .toggle.on { background: #305B3A; }
+.themed.night #settings { background: rgba(3, 6, 11, 0.97); }
+.themed.night #settings .group, .themed.night #settings .row .info, .themed.night #settings .state, .themed.night #settings .go,
+.themed.night #settings .keys { color: #BCC8D7; }
+.themed.night #settings .group.on { background: #172333; color: #F2F5F9; }
+.themed.night #settings .group.focus { background: #BDA5F5; color: #171026; }
+.themed.night #settings .row.focus { background: #172333; box-shadow: inset 0 0 0 3px #D8C8FF; }
+.themed.night #settings .opt { color: #F2F5F9; box-shadow: inset 0 0 0 2px #405066; }
+.themed.night #settings .opt.on { background: #F2F5F9; color: #0B1018; }
+.themed.night #settings .opt.hot { background: #BDA5F5; color: #171026; box-shadow: 0 0 0 3px #172333, 0 0 0 6px #D8C8FF; }
+.themed.night .toggle { background: #405066; }
+.themed.night .toggle.on { background: #57B87A; }
+
+/* The screensaver's clock on the dark wallpaper's quiet top left, as plain type. */
+.themed #saver .shade { display: none; }
+.themed #saver .clock { left: 96px; top: 64px; bottom: auto; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+
+/* Quick animations (Home Settings), for a slow TV. */
+.quick #home, .quick #drawer, .quick #top, .quick .sheet, .quick .tile, .quick .card, .quick .key, .quick .round, .quick .cell, .quick .cell .face {
+  -webkit-transition-duration: 0.12s !important;
+  transition-duration: 0.12s !important;
+}
 
 /* The Magic Remote's pointer: no text selection, no outlines. */
 * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }

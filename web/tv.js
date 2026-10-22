@@ -1,5 +1,6 @@
 /*
- * The TV's side of the web home screen: its apps, opening one, its inputs, its settings, the Back key, its time zone.
+ * The TV's side of the web home screen: its apps, opening one, its inputs, its settings, the Back key, its time zone,
+ * and on LG its screensaver and (with the background service) the Home key.
  *  - LG webOS: the TV's service bus (Luna), the same calls LG's launcher makes.
  *  - Samsung Tizen: Tizen's web APIs (tizen.application for the apps, tizen.tvwindow for the inputs).
  *  - A desktop browser: a stand-in with sample apps, so the screen can be previewed and tested on a computer.
@@ -33,6 +34,61 @@ var TV = (function () {
     bridge.call(uri, JSON.stringify(params || {}));
   }
 
+  /** A Luna subscription: on(result) for every message, once on(null) if the TV refuses it (or isn't a webOS TV). */
+  function subscribe(uri, params, on) {
+    if (!webos) { setTimeout(function () { on(null); }, 0); return; }
+    var bridge = new window.PalmServiceBridge(), refused = false;
+    calls.push(bridge);   // kept for as long as the app runs
+    bridge.onservicecallback = function (message) {
+      if (refused) return;
+      var result = null;
+      try { result = JSON.parse(message); } catch (e) {}
+      if (!result || result.returnValue === false) {
+        refused = true;
+        var i = calls.indexOf(bridge);
+        if (i >= 0) calls.splice(i, 1);
+        on(null);
+        return;
+      }
+      on(result);
+    };
+    params.subscribe = true;
+    bridge.call(uri, JSON.stringify(params));
+  }
+
+  /** A key for LG's second-screen API (SSAP, what phone apps use) on the TV itself, which tells which app is in front
+   *  where Luna denies it to developer apps: the TV asks the person once, then the key is kept. done(key) or done(null)
+   *  (the person said no: not asked again until askFrontAgain). */
+  var SSAP_KEY = 'fmtv.ssapKey', SSAP_NO = 'fmtv.ssapDenied', homeCalls = 0;
+
+  function stored(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function store(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+
+  function ssapKey(done) {
+    var key = stored(SSAP_KEY), s, over = false;
+    if (!key && stored(SSAP_NO)) { setTimeout(function () { done(null); }, 0); return; }
+    try { s = new WebSocket('ws://127.0.0.1:3000'); } catch (e) { setTimeout(function () { done(null); }, 0); return; }
+    function finish(k) {
+      if (over) return;
+      over = true;
+      try { s.close(); } catch (e) {}
+      done(k);
+    }
+    s.onopen = function () {
+      var payload = {forcePairing: false, pairingType: 'PROMPT',
+        manifest: {manifestVersion: 1, appVersion: '1.0', localizedAppNames: {'': 'Free My TV'}, permissions: ['READ_RUNNING_APPS', 'READ_APP_STATUS']}};
+      if (key) payload['client-key'] = key;
+      s.send(JSON.stringify({type: 'register', id: 'reg', payload: payload}));
+    };
+    s.onmessage = function (m) {
+      var d = null;
+      try { d = JSON.parse(m.data); } catch (e) { return; }
+      if (d.type === 'registered') { store(SSAP_KEY, d.payload['client-key']); finish(d.payload['client-key']); }
+      else if (d.type === 'error') { store(SSAP_KEY, null); store(SSAP_NO, '1'); finish(null); }   // the person said no
+    };
+    s.onclose = function () { finish(null); };
+  }
+
   // LG inputs: the antenna and the four HDMI ports, with the apps LG opens for them.
   var INPUTS = [
     {id: 'com.webos.app.livetv', key: 'live', label: null, symbol: 'live_tv'},
@@ -52,13 +108,44 @@ var TV = (function () {
   // Samsung's live TV viewer: it shows whichever source the TV is on (the antenna, or the HDMI picked here).
   var SAMSUNG_VIEWER = 'org.tizen.tv-viewer';
 
-  var SAMPLE = [
+  // Well-known LG apps: the desktop stand-in shows them all. Some LG firmware (webOS 25, and older ones too) denies
+  // listLaunchPoints to developer apps while launch and getAppLoadStatus still work: then the TV's apps are the ones
+  // here it says it has.
+  var KNOWN = [
     ['netflix', 'Netflix', '#E50914'], ['youtube.leanback.v4', 'YouTube', '#FF0033'], ['amazon', 'Prime Video', '#1A98FF'],
-    ['com.disney.disneyplus-prod', 'Disney+', '#1838C8'], ['com.hbo.hbomax', 'Max', '#6C3BE0'],
+    ['com.disney.disneyplus-prod', 'Disney+', '#1838C8'], ['com.wbd.stream', 'HBO Max', '#6C3BE0'], ['com.hbo.hbomax', 'Max', '#6C3BE0'],
     ['com.apple.appletv', 'Apple TV', '#B8BCC6'], ['globoplaywebos', 'Globoplay', '#FF5A1F'], ['spotify-beehive', 'Spotify', '#1DB954'],
-    ['cdp-30', 'Plex', '#E5A00D'], ['com.crunchyroll.webapp', 'Crunchyroll', '#F47521'], ['com.webos.app.browser', 'Web Browser', '#3A7BD5'],
-    ['com.palm.app.settings', 'Settings', '#8E8E93']
+    ['cdp-30', 'Plex', '#E5A00D'], ['com.crunchyroll.webapp', 'Crunchyroll', '#F47521'], ['ui30', 'Rakuten TV', '#BF0000'],
+    ['sky', 'Sky', '#0072C9'], ['com.webos.app.lgchannels', 'LG Channels', '#FD312E'], ['amazon.alexa.view', 'Alexa', '#00A8E1'],
+    ['com.webos.app.mediadiscovery', 'Media Player', '#7E56B1'], ['com.webos.app.browser', 'Web Browser', '#3A7BD5'],
+    ['com.webos.app.discovery', 'LG Content Store', '#4FAA6E'], ['com.palmdts.devmode', 'Developer Mode', '#BB3F3F']
   ];
+
+  // The TV's own icons, when the build found them in icons/: {app id: the color of the icon's border, '' if see-through}.
+  var icons = window.ICONS || {};
+
+  function knownApp(k) {
+    var has = icons.hasOwnProperty(k[0]);
+    return {id: k[0], title: k[1], icon: has ? 'icons/' + k[0] + '.png' : '', color: k[2], edge: has ? icons[k[0]] : ''};
+  }
+
+  /** The apps to look for: this TV's own list when the build has it (icons/apps.json), else the well-known ones. */
+  function candidates() {
+    var list = (window.TVAPPS || []).map(function (a) { return [a.id, a.title, a.color]; });
+    return (list.length ? list : KNOWN).filter(function (k) { return !HIDDEN.test(k[0]) && k[0] !== self; });
+  }
+
+  /** The candidates the TV says are installed, in the list's order. */
+  function knownApps(done) {
+    var list = candidates(), found = [], left = list.length;
+    if (!left) { done([]); return; }
+    list.forEach(function (k, i) {
+      luna('luna://com.webos.applicationManager/getAppLoadStatus', {appId: k[0]}, function (res) {
+        if (res && res.exist) found[i] = knownApp(k);
+        if (--left === 0) done(found.filter(Boolean));
+      });
+    });
+  }
 
   var self = 'io.freemytv';
   if (webos && window.PalmSystem && window.PalmSystem.identifier) self = window.PalmSystem.identifier.split(' ')[0];
@@ -167,10 +254,11 @@ var TV = (function () {
     apps: function (done) {
       if (samsung) { samsungApps(done); return; }
       if (!webos) {
-        done(SAMPLE.map(function (s) { return {id: s[0], title: s[1], icon: '', color: s[2]}; }));
+        done(candidates().map(knownApp));
         return;
       }
       luna('luna://com.webos.applicationManager/listLaunchPoints', {}, function (res) {
+        if (!res) { knownApps(done); return; }
         var out = [];
         var points = res && res.launchPoints ? res.launchPoints : [];
         for (var i = 0; i < points.length; i++) {
@@ -217,6 +305,9 @@ var TV = (function () {
               var d = devices[j];
               if (d.appId !== list[i].id) continue;
               list[i].connected = d.connected !== false;
+              list[i].plugged = d.hdmiPlugIn === true;   // a cable in the port (connected alone is true for an empty one)
+              if (/game/i.test(d.icon || '')) list[i].symbol = 'gamepad';
+              else if (/streaming|box/i.test(d.icon || '')) list[i].symbol = 'streaming_box';
               // A name the person gave the input on the TV ("PS5"), if any.
               if (d.label && !/^hdmi\s*\d$/i.test(d.label)) list[i].label = d.label;
             }
@@ -232,6 +323,11 @@ var TV = (function () {
       else this.launch('com.palm.app.settings', null, done);
     },
 
+    /** Opened again while running: LG keeps the app behind until it asks to come forward (handlesRelaunch). */
+    show: function () {
+      if (webos && window.PalmSystem && window.PalmSystem.activate) window.PalmSystem.activate();
+    },
+
     /** Back on the first screen: back to wherever the person came from. */
     back: function () {
       if (samsung) {
@@ -239,6 +335,44 @@ var TV = (function () {
         return;
       }
       if (window.PalmSystem && window.PalmSystem.platformBack) window.PalmSystem.platformBack();
+    },
+
+    /** This app's id. */
+    self: self,
+
+    /** LG: Home in an app opened from here comes back here (on) or not. The background service does it (this page is
+     *  suspended then), with the SSAP key; status(true) when it's set up, status(false) when it can't be. */
+    homeKey: function (on, status) {
+      if (!webos) { setTimeout(function () { status(false); }, 0); return; }
+      var gen = ++homeCalls;
+      // Again a little later, while this is the latest call: the service ends with an update and starts again on
+      // the next call, and the TV's second-screen server can be busy just after it starts.
+      function again() { if (gen === homeCalls) setTimeout(start, 5000); }
+      function start() {
+        ssapKey(function (key) {
+          if (!key) { status(false); if (stored(SSAP_KEY)) again(); return; }
+          // the page stays subscribed: that keeps the service running while another app is in front
+          subscribe('luna://' + self + '.service/watch', {key: key, on: on}, function (res) {
+            status(!!res);
+            if (!res) again();
+          });
+        });
+      }
+      start();
+    },
+
+    /** Ask the TV again (after the person said no to this app seeing which app is in front). */
+    askFrontAgain: function () { store(SSAP_NO, null); },
+
+    /** LG asks before its screensaver comes on: hold(), when true, says no (this app's own screensaver comes instead).
+     *  done(false) if the TV doesn't ask this app. */
+    holdScreensaver: function (hold, done) {
+      var answered = false;
+      subscribe('luna://com.webos.service.tvpower/power/registerScreenSaverRequest', {clientName: self}, function (res) {
+        if (!answered) { answered = true; if (done) done(!!res); }
+        if (!res || res.state !== 'Active') return;
+        luna('luna://com.webos.service.tvpower/power/responseScreenSaverRequest', {clientName: self, ack: !hold(), timestamp: res.timestamp});
+      });
     },
 
     /** The TV's time zone ("America/Sao_Paulo"), or ''. */

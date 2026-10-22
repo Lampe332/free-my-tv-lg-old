@@ -27,19 +27,53 @@ var I18N = (function () {
     "Dollar": "Dollar",
     "Series": "Serie",
     "Language": "Sprache",
+    "Moving wallpaper": "Bewegter Hintergrund",
+    "Animations": "Animationen",
+    "Quick": "Schnell",
+    "Normal": "Normal",
+    "Devices on Home": "Geräte auf dem Start",
+    "Screensaver": "Bildschirmschoner",
+    "apps": "Apps",
+    "Automatic follows the sunset: light by day, dark at night.": "Automatisch folgt dem Sonnenuntergang: tagsüber hell, nachts dunkel.",
+    "The wallpaper drifts slowly and holds still while you use the remote.": "Der Hintergrund bewegt sich langsam und hält still, während du die Fernbedienung benutzt.",
+    "Quick makes every move shorter, for a slower TV.": "Schnell macht jede Bewegung kürzer, gut für einen langsameren Fernseher.",
+    "Cards for what is plugged into the TV: OK switches to it.": "Karten für die angeschlossenen Geräte: OK schaltet direkt um.",
+    "The weather for your city on Home.": "Das Wetter für deinen Ort auf dem Startbildschirm.",
+    "Crypto prices at the top and in the drawer.": "Krypto-Kurse oben und in der unteren Leiste.",
+    "News": "Nachrichten",
+    "The latest SRF News headlines on Home.": "Die neuesten Schlagzeilen von SRF News auf dem Startbildschirm.",
+    "No news right now.": "Gerade keine Nachrichten.",
+    "Loading the news …": "Nachrichten werden geladen …",
+    "Just now": "Gerade eben",
+    "Tomorrow": "Morgen",
+    "Look": "Aussehen",
+    "Home": "Startbildschirm",
+    "System": "System",
+    "Move apps": "Apps verschieben",
+    "← → change the shelf's order, ↓ takes an app off. Or hold OK on an app on Home.": "← → ändern die Reihenfolge der Leiste, ↓ nimmt eine App heraus. Oder auf dem Startbildschirm OK auf einer App gedrückt halten.",
+    "While it's on, the TV's own stays off.": "Solange er an ist, bleibt der Bildschirmschoner des Fernsehers aus.",
+    "Home key": "Home-Taste",
+    "In an app opened here, Home comes back here; Home again goes to LG's home screen.": "In einer hier geöffneten App bringt Home dich hierher zurück, Home ein zweites Mal zur LG-Startseite.",
+    "For this the TV has to let this app see once which app is in front. OK asks it again.": "Dafür muss der Fernseher dieser App einmal erlauben zu sehen, welche App vorne ist. OK fragt ihn nochmal.",
+    "Allow it on the TV.": "Bitte am Fernseher erlauben.",
+    "Starts after": "Startet nach",
+    "Show it now": "Jetzt zeigen",
+    "The time and the weather on the dark wallpaper, until the next key.": "Uhr und Wetter auf dem dunklen Hintergrund, bis zur nächsten Taste.",
+    "OK changes · ← → choose · Back closes": "OK ändert · ← → wählen · Zurück schließt",
+    "← → move · ↓ take off · OK done": "← → verschieben · ↓ entfernen · OK fertig",
+    "Automatic follows the TV.": "Automatisch folgt der Sprache des Fernsehers.",
+    "Automatic follows your country.": "Automatisch folgt deinem Land.",
+    "After how long without a key the screen goes dark. Good for an OLED.": "Nach wie langer Zeit ohne Tastendruck der Bildschirm dunkel wird. Gut für OLED.",
+    "The TV's own settings.": "Die Einstellungen des Fernsehers.",
     "Temperature": "Temperatur",
     "Theme": "Design",
     "Automatic": "Automatisch",
     "Light": "Hell",
     "Dark": "Dunkel",
-    "Weather widget": "Wetter-Widget",
     "Quotes widget": "Kurs-Widget",
     "On": "An",
     "Off": "Aus",
-    "Shelf": "Leiste",
     "On · ": "In der Leiste · ",
-    "OK or the arrows change the value.": "OK oder die Pfeiltasten ändern den Wert.",
-    "OK adds or removes · ← → change the order": "OK fügt hinzu oder entfernt · ← → verschieben",
     "Explore": "Entdecken",
     "Movies": "Filme",
     "Shows": "Serien",
@@ -64,9 +98,13 @@ var I18N = (function () {
     m = /^(\d+) seasons?$/.exec(en);
     if (m) return m[1] + (m[1] === '1' ? ' Staffel' : ' Staffeln');
     m = /^H:(\S+)(\s+)L:(\S+)$/.exec(en);
-    if (m) return 'H:' + m[1] + m[2] + 'T:' + m[3];
+    if (m) return 'Max. ' + m[1] + ' · Min. ' + m[3];
     m = /^The shelf holds up to (\d+) apps\.$/.exec(en);
     if (m) return 'In die Leiste passen bis zu ' + m[1] + ' Apps.';
+    m = /^(.+) is on the shelf now\.$/.exec(en);
+    if (m) return m[1] + ' ist jetzt in der Leiste.';
+    m = /^(.+) is off the shelf: hold OK on it in All Apps to bring it back\.$/.exec(en);
+    if (m) return m[1] + ' ist aus der Leiste. In „Alle Apps“ OK darauf halten holt sie zurück.';
     return en;
   }
 
@@ -74,6 +112,26 @@ var I18N = (function () {
     "Live TV": "Телеканалы",
     "All Apps": "Приложения",
     "Settings": "Настройки",
+    "The latest SRF News headlines on Home.": "Свежие заголовки SRF News на главном экране.",
+    "No news right now.": "Сейчас нет новостей.",
+    "Loading the news …": "Загружаем новости …",
+    "Just now": "Только что",
+    "Tomorrow": "Завтра",
+    "Look": "Внешний вид",
+    "Home": "Главный экран",
+    "System": "Система",
+    "Move apps": "Переставить приложения",
+    "← → change the shelf's order, ↓ takes an app off. Or hold OK on an app on Home.": "← → меняют порядок избранного, ↓ убирает приложение. Или удерживайте OK на приложении на главном экране.",
+    "While it's on, the TV's own stays off.": "Пока она включена, заставка телевизора не появляется.",
+    "Home key": "Кнопка «Домой»",
+    "In an app opened here, Home comes back here; Home again goes to LG's home screen.": "В приложении, открытом отсюда, «Домой» возвращает сюда, повторное нажатие — на главный экран LG.",
+    "For this the TV has to let this app see once which app is in front. OK asks it again.": "Для этого телевизор должен один раз разрешить приложению видеть, какое приложение открыто. OK спросит снова.",
+    "Allow it on the TV.": "Разрешите на телевизоре.",
+    "Starts after": "Включается через",
+    "Show it now": "Показать сейчас",
+    "The time and the weather on the dark wallpaper, until the next key.": "Время и погода на тёмном фоне до следующего нажатия.",
+    "OK changes · ← → choose · Back closes": "OK меняет · ← → выбирают · Назад закрывает",
+    "← → move · ↓ take off · OK done": "← → переставить · ↓ убрать · OK готово",
     "Home Settings": "Главный экран",
     "TV Settings": "Настройки ТВ",
     "HDMI Inputs": "Входы HDMI",
@@ -96,12 +154,9 @@ var I18N = (function () {
     "Automatic": "Автоматически",
     "Light": "Светлая",
     "Dark": "Тёмная",
-    "Weather widget": "Виджет погоды",
     "Quotes widget": "Виджет котировок",
     "On": "Вкл.",
     "Off": "Выкл.",
-    "Shelf": "Избранные приложения",
-    "OK or the arrows change the value.": "Нажмите OK или стрелки, чтобы изменить значение.",
     "Explore": "Обзор",
     "Movies": "Фильмы",
     "Shows": "Сериалы",
@@ -117,7 +172,6 @@ var I18N = (function () {
     "Thunderstorms": "Гроза",
     "Rain": "Дождь",
     "On · ": "В избранном · ",
-    "OK adds or removes · ← → change the order": "OK — добавить или убрать · ← → — изменить порядок",
     "Couldn't open TV Settings": "Не удалось открыть настройки телевизора",
     "Action & Adventure": "Боевик и приключения",
     "Sci-Fi & Fantasy": "Фантастика и фэнтези",
@@ -135,6 +189,10 @@ var I18N = (function () {
     if (m) return m[1] + (m[2] === 'min' ? ' мин назад' : ' ч назад');
     m = /^The shelf holds up to (\d+) apps\.$/.exec(en);
     if (m) return 'В избранное можно добавить не более ' + m[1] + ' приложений.';
+    m = /^(.+) is on the shelf now\.$/.exec(en);
+    if (m) return m[1] + ' теперь в избранном.';
+    m = /^(.+) is off the shelf: hold OK on it in All Apps to bring it back\.$/.exec(en);
+    if (m) return m[1] + ' убрано из избранного. Удерживайте OK на нём во «Всех приложениях», чтобы вернуть.';
     return en;
   }
 

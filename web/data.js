@@ -2,7 +2,8 @@
  * What the home screen shows, kept in localStorage so it opens with numbers:
  *  - the picks: what's trending this week and recent releases, only from the streaming apps on this TV (TMDB, with
  *    the person's own free key from config.properties), three per hour;
- *  - weather, sunrise and sunset (Open-Meteo, every 30 min) and optional crypto prices (Binance, every 5 min).
+ *  - weather, sunrise and sunset, and the next five days (Open-Meteo, every 30 min), optional crypto prices (Binance,
+ *    every 5 min) and, without picks, the latest headlines (SRF News, every 10 min).
  * Settings changed on the TV (Prefs) win over config.properties, as on Android. Built without a city (--generic), the
  * TV's time zone gives the city, and its country the currency and the region (zones.js).
  */
@@ -50,6 +51,12 @@ var Prefs = (function () {
     quotes: function () { return pick('quotes', CONFIG.showCrypto !== false); },
     coin: function (i) { var c = pick('coins', null); return c ? c[i] !== false : true; },
     shelf: function () { return pick('shelf', null); },
+    drift: function () { return pick('drift', true); },          // the theme's wallpaper drifts
+    motion: function () { return pick('motion', 'normal'); },    // 'quick': every move shorter
+    devices: function () { return pick('devices', true); },      // device cards on Home without picks
+    news: function () { return pick('news', true); },            // the latest headlines (SRF News) on Home without picks
+    homeKey: function () { return pick('homeKey', true); },      // LG: Home in an app opened here comes back here
+    saver: function () { return pick('saver', 5); },             // idle minutes before the screensaver, 0 = never
     set: function (name, value) { v[name] = value; save(); this.version++; },
     setCoin: function (i, on) {
       var c = (pick('coins', null) || [true, true, true, true]).slice();
@@ -65,8 +72,8 @@ var Data = (function () {
   function store(key, value) { try { localStorage.setItem('fmtv.' + key, JSON.stringify(value)); } catch (e) {} }
   function stored(key) { try { return JSON.parse(localStorage.getItem('fmtv.' + key)); } catch (e) { return null; } }
 
-  /** GET a JSON document; done(error, json). */
-  function get(url, headers, done) {
+  /** GET a JSON document (with text, the text as it came); done(error, json). */
+  function get(url, headers, done, text) {
     var x = new XMLHttpRequest();
     var over = false;
     x.open('GET', url, true);
@@ -76,6 +83,7 @@ var Data = (function () {
       if (x.readyState !== 4 || over) return;
       over = true;
       if (x.status !== 200) { done(new Error(x.status === 401 ? 'TMDB rejected the key' : 'HTTP ' + x.status)); return; }
+      if (text) { done(null, x.responseText); return; }
       var json;
       try { json = JSON.parse(x.responseText); } catch (e) { done(e); return; }
       done(null, json);
@@ -93,7 +101,10 @@ var Data = (function () {
   var weather = null, weatherAt = 0, fetchingWeather = false;
   (function () {
     var w = stored('weather');
-    if (w && w.place === PLACE) { weather = parseWeather(w.body); weatherAt = w.at; }
+    if (w && w.place === PLACE) {
+      weather = parseWeather(w.body);
+      weatherAt = w.body && w.body.daily && w.body.daily.weather_code ? w.at : 0;   // kept from before the next days: ask again
+    }
   })();
 
   /** "2026-10-20T18:31" at the location (Open-Meteo's local time) → epoch ms. */
@@ -109,13 +120,17 @@ var Data = (function () {
     var w = {
       temp: o.current.temperature_2m, code: o.current.weather_code, isDay: o.current.is_day !== 0,
       max: o.daily.temperature_2m_max[0], min: o.daily.temperature_2m_min[0],
-      sunrise: localTime(o.daily.sunrise[0], off), sunset: localTime(o.daily.sunset[0], off), hours: []
+      sunrise: localTime(o.daily.sunrise[0], off), sunset: localTime(o.daily.sunset[0], off), hours: [], days: []
     };
     var hr = o.hourly;
     for (var i = 0; hr && i < hr.time.length && w.hours.length < 6; i++) {
       var at = localTime(hr.time[i], off);
       if (at <= now) continue;
       w.hours.push({at: at, temp: hr.temperature_2m[i], code: hr.weather_code[i], day: !hr.is_day || hr.is_day[i] !== 0});
+    }
+    var dl = o.daily;   // [0] is today; the next five days after it
+    for (var j = 1; dl.weather_code && j < dl.time.length && w.days.length < 5; j++) {
+      w.days.push({at: localTime(dl.time[j] + 'T12:00', off), code: dl.weather_code[j], max: dl.temperature_2m_max[j], min: dl.temperature_2m_min[j]});
     }
     return w;
   }
@@ -125,8 +140,8 @@ var Data = (function () {
     if (fetchingWeather || (now - weatherAt < 30 * 60000 && now >= weatherAt)) return;
     fetchingWeather = true;
     var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + Place.lat + '&longitude=' + Place.lon
-        + '&current=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset'
-        + '&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=2';
+        + '&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset'
+        + '&hourly=temperature_2m,weather_code,is_day&timezone=auto&forecast_days=6';
     get(url, {}, function (err, body) {
       fetchingWeather = false;
       if (err) return;
@@ -137,11 +152,49 @@ var Data = (function () {
     });
   }
 
+  // MARK: - News
+
+  var NEWS = 'https://www.srf.ch/news/bnf/rss/1646';   // SRF News, the latest (the feed allows any origin)
+  var news = [], newsAt = 0, newsTry = 0, fetchingNews = false;
+  (function () {
+    var n = stored('news');
+    if (n && n.list) { news = n.list; newsAt = n.at; }
+  })();
+
+  /** The feed's items, newest first: {title, at}. */
+  function parseNews(text) {
+    var out = [];
+    try {
+      var items = new DOMParser().parseFromString(text, 'text/xml').getElementsByTagName('item');
+      for (var i = 0; i < items.length && out.length < 8; i++) {
+        var t = items[i].getElementsByTagName('title')[0], d = items[i].getElementsByTagName('pubDate')[0];
+        var title = t ? t.textContent.replace(/\s+/g, ' ').replace(/^\s|\s$/g, '') : '';
+        if (title) out.push({title: title, at: d ? Date.parse(d.textContent) || 0 : 0});
+      }
+    } catch (e) {}
+    return out;
+  }
+
+  function refreshNews() {
+    var now = Date.now();
+    if (!Prefs.news() || fetchingNews || (now - newsTry < 10 * 60000 && now >= newsTry)) return;
+    fetchingNews = true;
+    newsTry = now;
+    get(NEWS, {}, function (err, text) {
+      fetchingNews = false;
+      var list = err ? [] : parseNews(text);
+      if (list.length) { news = list; newsAt = Date.now(); store('news', {list: news, at: newsAt}); }
+      changed();
+    }, true);
+  }
+
   // MARK: - Prices
 
   var COINS = ['BTC', 'ETH', 'SOL', 'USDT'];
   var CURRENCY = Place.currency;
-  var QUOTE = CURRENCY === 'USD' ? 'USDT' : CURRENCY;
+  // Binance prices the coins in these currencies itself; in any other (CHF, say) the prices are in dollars, not none.
+  var QUOTE = {EUR: 'EUR', BRL: 'BRL', TRY: 'TRY'}[CURRENCY] || 'USDT';
+  var PRICED = QUOTE === 'USDT' ? 'USD' : QUOTE;
   var prices = [NaN, NaN, NaN, NaN], changes = [NaN, NaN, NaN, NaN], pricesAt = 0, fetchingPrices = false;
 
   /** Indexes in COINS of the coins that are on (the dollar only in Brazilian reais, where Binance lists it). */
@@ -472,10 +525,14 @@ var Data = (function () {
     onChange: function (fn) { listeners.push(fn); },
     setApps: function (apps) { installed = apps; },
     appFor: appFor,
-    refresh: function () { refreshWeather(); refreshPrices(); refreshRecs(); },
+    refresh: function () { refreshWeather(); refreshPrices(); refreshRecs(); refreshNews(); },
     settingsChanged: function () { pricesAt = 0; refreshPrices(); changed(); },
     get weather() { return weather; },
     get weatherAt() { return weatherAt; },
+    get news() { return news; },
+    get newsAt() { return newsAt; },
+    /** The feed was asked and answered (or failed): an empty list then means no news, not loading. */
+    get newsTried() { return newsTry > 0 && !fetchingNews; },
     prices: prices,
     changes: changes,
     get pricesAt() { return pricesAt; },
@@ -505,7 +562,7 @@ var Data = (function () {
       return fmt(v, 2);
     },
     money: function (v) {
-      var s = SYMBOLS[CURRENCY] || CURRENCY + ' ';
+      var s = SYMBOLS[PRICED] || PRICED + ' ';
       if (isNaN(v)) return s + '—';
       return s + (v >= 1000 ? fmt(v, 0) : fmt(v, 2));
     },
@@ -534,6 +591,18 @@ var Data = (function () {
       if (age < every * 2) return '';
       var m = Math.floor(age / 60000), h = Math.floor(m / 60);
       return m < 60 ? tr('há ' + m + ' min', m + ' min ago', 'hace ' + m + ' min') : tr('há ' + h + ' h', h + ' h ago', 'hace ' + h + ' h');
+    },
+    /** How long ago, for a headline: "Just now", "12 min ago", "3 h ago", or the weekday when older than a day. */
+    ago: function (at) {
+      if (!at) return '';
+      var m = Math.max(0, Math.floor((Date.now() - at) / 60000)), h = Math.floor(m / 60);
+      if (m < 1) return tr('Agora', 'Just now', 'Ahora');
+      if (m < 60) return tr('há ' + m + ' min', m + ' min ago', 'hace ' + m + ' min');
+      return h < 24 ? tr('há ' + h + ' h', h + ' h ago', 'hace ' + h + ' h') : this.weekday(at);
+    },
+    /** A day's short name ("Fr."), for the forecast. */
+    weekday: function (at) {
+      try { return new Date(at).toLocaleDateString(I18N.locale(), {weekday: 'short'}); } catch (e) { return ''; }
     },
     condition: function (code, day) {
       if (code === undefined || code === null || code < 0) return '';
